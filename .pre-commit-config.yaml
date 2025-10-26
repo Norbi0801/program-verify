@@ -1,0 +1,9 @@
+repos:
+  - repo: local
+    hooks:
+      - id: cargo-version-bump
+        name: Ensure Cargo.toml version bump
+        entry: scripts/check_version_bump.py
+        language: system
+        pass_filenames: false
+        stages: [commit]
