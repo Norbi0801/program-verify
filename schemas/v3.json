@@ -1,0 +1,203 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LLM mini-program specification v3.0.0",
+  "type": "object",
+  "definitions": {
+    "semver": {
+      "type": "string",
+      "pattern": "^v(?:0|[1-9]\\\d*)(?:\\\.(?:0|[1-9]\\\d*)){0,2}(?:-(?:0|[1-9]\\\d*|[A-Za-z-][0-9A-Za-z-]*)(?:\\\.(?:0|[1-9]\\\d*|[A-Za-z-][0-9A-Za-z-]*))*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$"
+    },
+    "schemaOrRef": {
+      "description": "Schema fragment or reference describing the shape of an I/O payload.",
+      "oneOf": [
+        { "type": "object" },
+        { "type": "string", "minLength": 2 }
+      ]
+    },
+    "ioSource": {
+      "type": "object",
+      "description": "Declarative source of an input payload so the compiler can reconstruct the dependency graph.",
+      "required": ["kind"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["instance", "global", "phase_output"]
+        },
+        "phase": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Name of the phase that produces the referenced output port."
+        },
+        "port": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Name of the output port within the producing phase."
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "description": "JSON Pointer (or dot path) pointing to the data within the source envelope."
+        },
+        "description": { "type": "string" }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": { "kind": { "const": "phase_output" } },
+            "required": ["kind"]
+          },
+          "then": {
+            "required": ["phase", "port"]
+          }
+        },
+        {
+          "if": {
+            "properties": { "kind": { "enum": ["instance", "global"] } },
+            "required": ["kind"]
+          },
+          "then": {
+            "required": ["path"]
+          }
+        }
+      ]
+    },
+    "phaseInput": {
+      "type": "object",
+      "required": ["name", "schema", "source"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "schema": { "$ref": "#/definitions/schemaOrRef" },
+        "source": { "$ref": "#/definitions/ioSource" },
+        "description": { "type": "string" },
+        "optional": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "phaseOutput": {
+      "type": "object",
+      "required": ["name", "schema"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "schema": { "$ref": "#/definitions/schemaOrRef" },
+        "description": { "type": "string" },
+        "exposes_as": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Optional alias for wiring this output into other systems (e.g. exported return value)."
+        }
+      },
+      "additionalProperties": false
+    },
+    "phaseOutputRef": {
+      "type": "object",
+      "required": ["phase", "port"],
+      "properties": {
+        "phase": { "type": "string", "minLength": 1 },
+        "port": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "spec_version": {
+      "$ref": "#/definitions/semver",
+      "description": "Version of this specification/schema; not the version of the described document."
+    },
+    "meta": {
+      "type": "object",
+      "required": ["title", "version"],
+      "properties": {
+        "title": { "type": "string", "minLength": 1 },
+        "version": { "$ref": "#/definitions/semver" },
+        "purpose": { "type": "string" },
+        "notes": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "algorithm": {
+      "type": "object",
+      "required": ["name", "phases"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "phases": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "implementation": {
+      "type": "object",
+      "required": ["language", "entrypoint", "return_contract"],
+      "properties": {
+        "language": { "type": "string", "minLength": 1 },
+        "entrypoint": { "type": "string", "minLength": 1 },
+        "parameters": {
+          "type": "object",
+          "additionalProperties": {
+            "oneOf": [
+              { "type": "string", "minLength": 1 },
+              {
+                "type": "object",
+                "properties": {
+                  "type": { "type": "string" },
+                  "required": { "type": "boolean" },
+                  "default": {},
+                  "description": { "type": "string" },
+                  "enum": { "type": "array" },
+                  "schema": { "type": "object" }
+                },
+                "additionalProperties": false
+              }
+            ]
+          }
+        },
+        "return_contract": {
+          "type": "object",
+          "required": ["schema"],
+          "properties": {
+            "schema": { "$ref": "#/definitions/schemaOrRef" },
+            "produced_by": { "$ref": "#/definitions/phaseOutputRef" }
+          },
+          "additionalProperties": false
+        },
+        "phase_contracts": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": { "type": "string", "minLength": 1 },
+          "additionalProperties": {
+            "type": "object",
+            "required": ["inputs"],
+            "properties": {
+              "description": { "type": "string" },
+              "inputs": {
+                "type": "array",
+                "minItems": 1,
+                "items": { "$ref": "#/definitions/phaseInput" }
+              },
+              "outputs": {
+                "type": "array",
+                "items": { "$ref": "#/definitions/phaseOutput" }
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "source": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "formats": {}
+      },
+      "additionalProperties": false
+    }
+  },
+  "patternProperties": {
+    "^x-": {}
+  },
+  "required": ["spec_version", "meta", "algorithm", "implementation"],
+  "additionalProperties": false
+}
