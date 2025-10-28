@@ -7,6 +7,15 @@
 If you skip the `--spec-version` flag, the tool reads the `spec_version` field from the input
 document and selects the matching schema from `version_map.yaml`.
 
+### Specification versions
+
+`v3.0.0` introduces declarative phase contracts for mini-programs. Each phase can now describe its
+inputs (including the explicit source of every payload: instance data, global context, or the output
+port of another phase) and the outputs it produces. This allows tooling such as the `llm-compiler`
+to reconstruct dependency graphs and prepare the minimal execution context for every step.
+
+Older documents can continue to target `v1.0.0`; both schemas are listed in `version_map.yaml`.
+
 - --------------------------------------------------------------------------------------------------------------------
 
 ### Use a custom schema

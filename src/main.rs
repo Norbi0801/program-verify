@@ -2,7 +2,7 @@ use clap::Parser;
 use jsonschema::JSONSchema;
 use serde_json::Value as JsonValue;
 use std::{
-    collections::HashMap,
+    collections::{HashMap, HashSet},
     env, fs,
     path::{Path, PathBuf},
     process::ExitCode,
@@ -149,6 +149,11 @@ fn main() -> ExitCode {
         eprintln!("❌ Rule: meta.title vs algorithm.name: {msg}");
     }
 
+    for msg in check_phase_contracts(&instance) {
+        had_errors = true;
+        eprintln!("❌ Rule: phase contracts: {msg}");
+    }
+
     if had_errors {
         ExitCode::from(1)
     } else {
@@ -181,7 +186,207 @@ fn check_title_vs_algorithm(doc: &JsonValue) -> Result<(), String> {
     Ok(())
 }
 
-/// Extracts the base name from the title: everything before the first '('.
+fn check_phase_contracts(doc: &JsonValue) -> Vec<String> {
+    let mut errors = Vec::new();
+
+    let needs_contracts = doc
+        .get("spec_version")
+        .and_then(|v| v.as_str())
+        .and_then(parse_semver_major)
+        .map(|major| major >= 3)
+        .unwrap_or(false);
+
+    let algorithm = match doc.get("algorithm") {
+        Some(value) => value,
+        None => return errors,
+    };
+
+    let phases = match algorithm.get("phases").and_then(|v| v.as_array()) {
+        Some(items) => items
+            .iter()
+            .filter_map(|item| item.as_str().map(|s| s.to_string()))
+            .collect::<Vec<_>>(),
+        None => return errors,
+    };
+    let phase_set: HashSet<String> = phases.iter().cloned().collect();
+
+    let implementation = match doc.get("implementation") {
+        Some(value) => value,
+        None => return errors,
+    };
+
+    let contracts_value = match implementation.get("phase_contracts") {
+        Some(value) => value,
+        None => {
+            if needs_contracts {
+                errors.push(
+                    "implementation.phase_contracts must be present for v3+ specs".to_string(),
+                );
+            }
+            return errors;
+        }
+    };
+
+    let phase_contracts = match contracts_value.as_object() {
+        Some(map) => map,
+        None => return errors,
+    };
+
+    if needs_contracts {
+        for phase in &phases {
+            if !phase_contracts.contains_key(phase.as_str()) {
+                errors.push(format!(
+                    "Missing phase_contracts entry for algorithm phase '{phase}'",
+                ));
+            }
+        }
+    }
+
+    for phase_name in phase_contracts.keys() {
+        if !phase_set.contains(phase_name.as_str()) {
+            errors.push(format!(
+                "phase_contracts contains unknown phase '{phase_name}' (not listed in algorithm.phases)"
+            ));
+        }
+    }
+
+    let mut outputs_map: HashMap<String, HashSet<String>> = HashMap::new();
+
+    for (phase_name, contract_value) in phase_contracts.iter() {
+        if let Some(contract_obj) = contract_value.as_object() {
+            let mut seen_outputs = HashSet::new();
+            if let Some(outputs) = contract_obj.get("outputs").and_then(|v| v.as_array()) {
+                for output in outputs {
+                    if let Some(name) = output.get("name").and_then(|n| n.as_str()) {
+                        if !seen_outputs.insert(name.to_string()) {
+                            errors.push(format!(
+                                "Phase '{phase_name}' defines duplicate output '{name}'",
+                            ));
+                        }
+                    }
+                }
+            }
+            outputs_map.insert(phase_name.clone(), seen_outputs);
+        }
+    }
+
+    for (phase_name, contract_value) in phase_contracts.iter() {
+        let Some(contract_obj) = contract_value.as_object() else {
+            continue;
+        };
+
+        let inputs = match contract_obj.get("inputs").and_then(|v| v.as_array()) {
+            Some(items) => items,
+            None => continue,
+        };
+
+        let mut seen_inputs = HashSet::new();
+        for input in inputs {
+            let Some(input_name) = input.get("name").and_then(|n| n.as_str()) else {
+                continue;
+            };
+
+            if !seen_inputs.insert(input_name.to_string()) {
+                errors.push(format!(
+                    "Phase '{phase_name}' declares duplicate input '{input_name}'",
+                ));
+            }
+
+            let Some(source_obj) = input.get("source").and_then(|s| s.as_object()) else {
+                continue;
+            };
+
+            let Some(kind) = source_obj.get("kind").and_then(|k| k.as_str()) else {
+                continue;
+            };
+
+            match kind {
+                "phase_output" => {
+                    let Some(target_phase) = source_obj.get("phase").and_then(|p| p.as_str()) else {
+                        continue;
+                    };
+
+                    if !phase_set.contains(target_phase) {
+                        errors.push(format!(
+                            "Phase '{phase_name}' references unknown producing phase '{target_phase}' in input '{input_name}'",
+                        ));
+                        continue;
+                    }
+
+                    if !phase_contracts.contains_key(target_phase) {
+                        errors.push(format!(
+                            "Phase '{phase_name}' references phase '{target_phase}' in input '{input_name}' but that phase lacks a phase_contracts entry",
+                        ));
+                        continue;
+                    }
+
+                    let Some(port) = source_obj.get("port").and_then(|p| p.as_str()) else {
+                        continue;
+                    };
+
+                    match outputs_map.get(target_phase) {
+                        Some(outputs) if outputs.contains(port) => {}
+                        _ => errors.push(format!(
+                            "Phase '{phase_name}' expects output '{port}' from phase '{target_phase}' in input '{input_name}', but it is not declared",
+                        )),
+                    }
+                }
+                "instance" | "global" => {
+                    match source_obj.get("path").and_then(|p| p.as_str()) {
+                        Some(path) if !path.trim().is_empty() => {}
+                        _ => errors.push(format!(
+                            "Phase '{phase_name}' input '{input_name}' must declare a non-empty source.path for kind '{kind}'",
+                        )),
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
+
+    if let Some(return_contract) = implementation
+        .get("return_contract")
+        .and_then(|v| v.as_object())
+    {
+        if let Some(produced_by) = return_contract.get("produced_by").and_then(|v| v.as_object()) {
+            let phase = produced_by
+                .get("phase")
+                .and_then(|p| p.as_str())
+                .unwrap_or_default();
+
+            if !phase.is_empty() {
+                if !phase_set.contains(phase) {
+                    errors.push(format!(
+                        "return_contract.produced_by references unknown phase '{phase}'",
+                    ));
+                } else if !phase_contracts.contains_key(phase) {
+                    errors.push(format!(
+                        "return_contract.produced_by references phase '{phase}' but it has no phase_contracts entry",
+                    ));
+                } else if let Some(port) = produced_by.get("port").and_then(|p| p.as_str()) {
+                    match outputs_map.get(phase) {
+                        Some(outputs) if outputs.contains(port) => {}
+                        _ => errors.push(format!(
+                            "return_contract.produced_by references output '{port}' from phase '{phase}' which is not declared",
+                        )),
+                    }
+                }
+            }
+        }
+    }
+
+    errors
+}
+
+fn parse_semver_major(ver: &str) -> Option<u64> {
+    let trimmed = ver.strip_prefix('v')?;
+    let major_part = trimmed
+        .split(|c| c == '.' || c == '-' || c == '+')
+        .next()?;
+    major_part.parse().ok()
+}
+
+/// Extracts the base name from the title: everything before the first opening parenthesis.
 fn base_name_from_title(title: &str) -> String {
     if let Some((left, _)) = title.split_once('(') {
         left.trim().to_string()
