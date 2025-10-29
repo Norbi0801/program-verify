@@ -14,6 +14,10 @@ inputs (including the explicit source of every payload: instance data, global co
 port of another phase) and the outputs it produces. This allows tooling such as the `llm-compiler`
 to reconstruct dependency graphs and prepare the minimal execution context for every step.
 
+`v4.0.0` adds a dedicated resource catalog. Specifications can declare reusable resources once and
+then attach them to individual mini-program phases, making dependencies explicit for orchestrators
+and deployment tooling.
+
 Older documents can continue to target `v1.0.0`; both schemas are listed in `version_map.yaml`.
 
 - --------------------------------------------------------------------------------------------------------------------
