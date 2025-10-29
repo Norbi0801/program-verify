@@ -1,0 +1,506 @@
+spec_version: v4.0.0
+meta:
+  title: LLM Problem Solver (v1)
+  version: v1.0.0
+  purpose: >-
+    Comprehensive for-LLM program that guides a language model through
+    structured problem solving, including knowledge capture, reasoning,
+    solution design, validation, and decision making.
+algorithm:
+  name: LLM Problem Solver
+  phases:
+    - intake_problem
+    - clarify_context
+    - evaluate_information_gap
+    - research_context
+    - persist_knowledge
+    - design_plan
+    - execute_solution
+    - review_and_validate
+    - finalize
+  graph:
+    entry: intake_problem
+    nodes:
+      intake_problem:
+        type: phase
+        description: Capture the raw problem description, constraints, and goals from the operator.
+      clarify_context:
+        type: phase
+        description: Structure the problem statement, identify stakeholders, constraints, and open questions.
+      evaluate_information_gap:
+        type: phase
+        description: Decide whether additional research or data gathering is required before planning.
+      needs_research_decision:
+        type: if
+        condition: requires_research == true
+        branches:
+          - name: gather
+            description: Missing context or knowledge requires research.
+          - name: skip
+            description: Available information is sufficient to proceed.
+      research_context:
+        type: phase
+        description: Collect external knowledge, references, or examples relevant to the problem.
+      persist_knowledge:
+        type: phase
+        description: Serialize accumulated insights to /tmp/*.save files for later reuse.
+      design_plan:
+        type: phase
+        description: Produce a structured action plan and reasoning steps tailored to the problem.
+      execute_solution:
+        type: phase
+        description: Carry out the reasoning or computations to obtain a proposed solution.
+      review_and_validate:
+        type: phase
+        description: Stress-test the solution, enumerate risks, and confirm alignment with objectives.
+      finalize:
+        type: phase
+        description: Assemble the final deliverables, including decision, next actions, and confidence rating.
+    edges:
+      - from: intake_problem
+        to: clarify_context
+      - from: clarify_context
+        to: evaluate_information_gap
+      - from: evaluate_information_gap
+        to: needs_research_decision
+      - from: needs_research_decision
+        to: research_context
+        condition: gather
+        kind: success
+      - from: needs_research_decision
+        to: persist_knowledge
+        condition: skip
+        kind: success
+      - from: research_context
+        to: persist_knowledge
+      - from: persist_knowledge
+        to: design_plan
+      - from: design_plan
+        to: execute_solution
+      - from: execute_solution
+        to: review_and_validate
+      - from: review_and_validate
+        to: finalize
+  outputs:
+    - name: solution_report
+      description: Final structured report containing the problem statement, reasoning trace, and proposed actions.
+      schema:
+        type: object
+        required: [problem_statement, reasoning_trace, recommended_actions, decision]
+      build:
+        object:
+          - name: problem_statement
+            source:
+              kind: phase_output
+              phase: clarify_context
+              port: structured_statement
+          - name: reasoning_trace
+            source:
+              kind: phase_output
+              phase: execute_solution
+              port: reasoning_steps
+          - name: recommended_actions
+            source:
+              kind: phase_output
+              phase: finalize
+              port: next_actions
+          - name: decision
+            source:
+              kind: phase_output
+              phase: finalize
+              port: decision
+          - name: knowledge_files
+            source:
+              kind: phase_output
+              phase: persist_knowledge
+              port: saved_files
+implementation:
+  language: for-llm
+  entrypoint: solver.problem.main:run
+  parameters:
+    timebox:
+      type: string
+      default: 2h
+      description: Maximum reasoning time or iteration budget available to the LLM.
+    risk_tolerance:
+      type: string
+      default: medium
+      enum: [low, medium, high]
+      description: Governs the aggressiveness of solution exploration and rollout recommendations.
+    recursion_limit:
+      type: integer
+      default: 3
+      description: Maximum depth for recursive decomposition of subproblems.
+    knowledge_directory:
+      type: string
+      default: /tmp
+      description: Directory where knowledge snapshots (.save files) must be written.
+    knowledge_prefix:
+      type: string
+      default: solver_session
+      description: Prefix for generated .save filenames.
+  source:
+    - uri: memory://templates/llm-problem-solver
+      type: prompt
+      version: 1.0.0
+      description: Canonical prompt template for orchestrating the solver steps.
+  return_contract:
+    schema:
+      type: object
+      required: [report]
+      properties:
+        report:
+          $ref: '#/algorithm/outputs/0/schema'
+    produced_by:
+      phase: finalize
+      port: final_report
+  phase_contracts:
+    intake_problem:
+      description: Capture the raw problem statement and any provided metadata.
+      inputs:
+        - name: raw_problem
+          schema:
+            type: string
+          source:
+            kind: instance
+            path: $.problem.description
+        - name: operator_context
+          schema:
+            type: object
+          source:
+            kind: context
+            path: $.operator
+      outputs:
+        - name: captured_problem
+          schema:
+            type: string
+        - name: metadata
+          schema:
+            type: object
+      errors:
+        - code: MISSING_PROBLEM
+          description: No problem description supplied by the operator.
+          severity: fatal
+      semantics:
+        category: intake
+        capabilities: [problem_capture]
+    clarify_context:
+      description: Structure the problem into objectives, constraints, stakeholders, and unknowns.
+      inputs:
+        - name: captured_problem
+          schema:
+            type: string
+          source:
+            kind: phase_output
+            phase: intake_problem
+            port: captured_problem
+        - name: metadata
+          schema:
+            type: object
+          source:
+            kind: phase_output
+            phase: intake_problem
+            port: metadata
+      outputs:
+        - name: structured_statement
+          schema:
+            type: string
+        - name: objectives
+          schema:
+            type: array
+            items:
+              type: object
+        - name: constraints
+          schema:
+            type: array
+            items:
+              type: string
+        - name: unknowns
+          schema:
+            type: array
+            items:
+              type: string
+      semantics:
+        category: analysis
+        capabilities: [problem_analysis, objective_definition]
+    evaluate_information_gap:
+      description: Determine if available data is sufficient or if additional research is required.
+      inputs:
+        - name: objectives
+          schema:
+            type: array
+            items:
+              type: object
+          source:
+            kind: phase_output
+            phase: clarify_context
+            port: objectives
+        - name: constraints
+          schema:
+            type: array
+            items:
+              type: string
+          source:
+            kind: phase_output
+            phase: clarify_context
+            port: constraints
+        - name: unknowns
+          schema:
+            type: array
+            items:
+              type: string
+          source:
+            kind: phase_output
+            phase: clarify_context
+            port: unknowns
+      outputs:
+        - name: gap_analysis
+          schema:
+            type: object
+        - name: requires_research
+          schema:
+            type: boolean
+      semantics:
+        category: decision
+        capabilities: [gap_assessment]
+    research_context:
+      description: Gather missing information from memory, tools, or external documents.
+      inputs:
+        - name: gap_analysis
+          schema:
+            type: object
+          source:
+            kind: phase_output
+            phase: evaluate_information_gap
+            port: gap_analysis
+      outputs:
+        - name: research_summary
+          schema:
+            type: string
+        - name: references
+          schema:
+            type: array
+            items:
+              type: string
+      errors:
+        - code: RESEARCH_TIMEOUT
+          description: Unable to gather knowledge within the allotted timebox.
+          severity: retryable
+      retry_policy:
+        max_attempts: 2
+        retryable_errors: [RESEARCH_TIMEOUT]
+        backoff:
+          strategy: linear
+          initial_delay_ms: 500
+      semantics:
+        category: research
+        capabilities: [knowledge_retrieval, citation_tracking]
+    persist_knowledge:
+      description: Write accumulated insights to disk using the .save extension in the configured directory.
+      inputs:
+        - name: structured_statement
+          schema:
+            type: string
+          source:
+            kind: phase_output
+            phase: clarify_context
+            port: structured_statement
+        - name: research_summary
+          schema:
+            type: string
+          source:
+            kind: phase_output
+            phase: research_context
+            port: research_summary
+            optional: true
+        - name: references
+          schema:
+            type: array
+            items:
+              type: string
+          source:
+            kind: phase_output
+            phase: research_context
+            port: references
+            optional: true
+      outputs:
+        - name: saved_files
+          schema:
+            type: array
+            items:
+              type: string
+        - name: knowledge_manifest
+          schema:
+            type: object
+      errors:
+        - code: WRITE_FAILURE
+          description: Failed to persist knowledge snapshots to /tmp/*.save.
+          severity: retryable
+      retry_policy:
+        max_attempts: 3
+        retryable_errors: [WRITE_FAILURE]
+        backoff:
+          strategy: exponential
+          initial_delay_ms: 250
+          max_delay_ms: 2000
+      semantics:
+        category: persistence
+        capabilities: [knowledge_persistence]
+    design_plan:
+      description: Produce a structured plan of attack with milestones and success metrics.
+      inputs:
+        - name: structured_statement
+          schema:
+            type: string
+          source:
+            kind: phase_output
+            phase: clarify_context
+            port: structured_statement
+        - name: knowledge_manifest
+          schema:
+            type: object
+          source:
+            kind: phase_output
+            phase: persist_knowledge
+            port: knowledge_manifest
+      outputs:
+        - name: plan
+          schema:
+            type: object
+        - name: evaluation_metrics
+          schema:
+            type: array
+            items:
+              type: object
+      semantics:
+        category: planning
+        capabilities: [plan_generation]
+    execute_solution:
+      description: Apply the plan to craft the proposed solution and supporting rationale.
+      inputs:
+        - name: plan
+          schema:
+            type: object
+          source:
+            kind: phase_output
+            phase: design_plan
+            port: plan
+        - name: evaluation_metrics
+          schema:
+            type: array
+            items:
+              type: object
+          source:
+            kind: phase_output
+            phase: design_plan
+            port: evaluation_metrics
+      outputs:
+        - name: reasoning_steps
+          schema:
+            type: array
+            items:
+              type: string
+        - name: proposed_solution
+          schema:
+            type: object
+      semantics:
+        category: reasoning
+        capabilities: [solution_synthesis]
+    review_and_validate:
+      description: Evaluate the proposed solution against risks, metrics, and alternative options.
+      inputs:
+        - name: proposed_solution
+          schema:
+            type: object
+          source:
+            kind: phase_output
+            phase: execute_solution
+            port: proposed_solution
+        - name: reasoning_steps
+          schema:
+            type: array
+            items:
+              type: string
+          source:
+            kind: phase_output
+            phase: execute_solution
+            port: reasoning_steps
+        - name: plan
+          schema:
+            type: object
+          source:
+            kind: phase_output
+            phase: design_plan
+            port: plan
+      outputs:
+        - name: validation_report
+          schema:
+            type: object
+        - name: risk_register
+          schema:
+            type: array
+            items:
+              type: object
+      semantics:
+        category: evaluation
+        capabilities: [risk_analysis, validation]
+    finalize:
+      description: Produce the final report with decision, next actions, and open questions.
+      inputs:
+        - name: structured_statement
+          schema:
+            type: string
+          source:
+            kind: phase_output
+            phase: clarify_context
+            port: structured_statement
+        - name: proposed_solution
+          schema:
+            type: object
+          source:
+            kind: phase_output
+            phase: execute_solution
+            port: proposed_solution
+        - name: validation_report
+          schema:
+            type: object
+          source:
+            kind: phase_output
+            phase: review_and_validate
+            port: validation_report
+        - name: risk_register
+          schema:
+            type: array
+            items:
+              type: object
+          source:
+            kind: phase_output
+            phase: review_and_validate
+            port: risk_register
+        - name: saved_files
+          schema:
+            type: array
+            items:
+              type: string
+          source:
+            kind: phase_output
+            phase: persist_knowledge
+            port: saved_files
+      outputs:
+        - name: final_report
+          schema:
+            type: object
+        - name: decision
+          schema:
+            type: string
+        - name: next_actions
+          schema:
+            type: array
+            items:
+              type: string
+        - name: confidence
+          schema:
+            type: string
+      semantics:
+        category: synthesis
+        capabilities: [reporting, decision_making]
