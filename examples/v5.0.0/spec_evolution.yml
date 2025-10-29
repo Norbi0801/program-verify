@@ -1,0 +1,535 @@
+spec_version: v5.0.0
+meta:
+  title: Spec Evolution Orchestrator
+  version: v1.0.0
+  purpose: >-
+    Iteratively improve a v5-compliant specification by analysing the previously
+    accepted version, identifying stronger control levers for LLM governance, and
+    synthesising an upgraded release that offers tighter oversight of model
+    behaviours and tool usage.
+algorithm:
+  name: Spec Evolution Program
+  phases:
+    - ingest_baseline
+    - analyze_opportunities
+    - design_improvement_blueprint
+    - synthesize_candidate_spec
+    - evaluate_candidate_spec
+    - promote_candidate
+    - curate_iteration_report
+    - finalize_release
+  graph:
+    entry: improvement_loop
+    description: Govern successive refinement cycles until the candidate spec meets acceptance thresholds.
+    nodes:
+      improvement_loop:
+        type: loop
+        description: Manage the iterative improvement cycle with safety bounds and stopping criteria.
+        body: ingest_baseline
+        until: improvement_score >= target_improvement_score or iteration >= max_iterations
+        max_iterations: 5
+      ingest_baseline:
+        type: phase
+        description: Gather the latest approved specification and contextual metadata for reflection.
+      analyze_opportunities:
+        type: phase
+        description: Inspect the baseline specification to surface governance gaps and opportunity areas.
+      design_improvement_blueprint:
+        type: phase
+        description: Synthesize targeted control enhancements and guardrail upgrades addressing observed gaps.
+      synthesize_candidate_spec:
+        type: phase
+        description: Draft the next specification version incorporating the planned enhancements.
+      evaluate_candidate_spec:
+        type: phase
+        description: Assess the candidate against acceptance tests, risk models, and alignment objectives.
+      decision_gateway:
+        type: if
+        description: Decide whether the candidate satisfies improvement goals or needs another refinement cycle.
+        condition: assessment_report.readiness == "ready"
+        branches:
+          - name: accept
+            description: Candidate meets or exceeds control-strength targets.
+          - name: refine
+            description: Candidate requires further iteration to close identified gaps.
+      promote_candidate:
+        type: phase
+        description: Promote the candidate into the working baseline, incorporating evaluator feedback.
+      curate_iteration_report:
+        type: phase
+        description: Produce an auditable summary of the accepted specification and supporting evidence.
+      finalize_release:
+        type: phase
+        description: Package the approved specification with provenance, governance notes, and rollout guidance.
+      conclude_program:
+        type: end
+        description: Signal program completion once a release package is produced.
+    edges:
+      - from: improvement_loop
+        to: ingest_baseline
+        kind: loop
+        description: Enter the refinement loop body for the current iteration.
+      - from: ingest_baseline
+        to: analyze_opportunities
+        kind: normal
+      - from: analyze_opportunities
+        to: design_improvement_blueprint
+        kind: normal
+      - from: design_improvement_blueprint
+        to: synthesize_candidate_spec
+        kind: normal
+      - from: synthesize_candidate_spec
+        to: evaluate_candidate_spec
+        kind: normal
+      - from: evaluate_candidate_spec
+        to: decision_gateway
+        kind: normal
+      - from: decision_gateway
+        to: curate_iteration_report
+        kind: success
+        condition: accept
+      - from: curate_iteration_report
+        to: finalize_release
+        kind: normal
+      - from: finalize_release
+        to: conclude_program
+        kind: normal
+      - from: decision_gateway
+        to: promote_candidate
+        kind: failure
+        condition: refine
+      - from: promote_candidate
+        to: improvement_loop
+        kind: loop
+        description: Continue iterating with the promoted baseline.
+  outputs:
+    - name: improved_spec_release
+      description: Finalised specification package ready for publication and downstream consumption.
+      schema:
+        type: object
+        required: [version, specification, audit_summary]
+      build:
+        object:
+          - name: version
+            source:
+              kind: phase_output
+              phase: finalize_release
+              port: release_version
+          - name: specification
+            source:
+              kind: phase_output
+              phase: finalize_release
+              port: release_spec
+          - name: audit_summary
+            source:
+              kind: phase_output
+              phase: curate_iteration_report
+              port: iteration_summary
+    - name: governance_dossier
+      description: Aggregated context for compliance, including change log and evaluation metrics.
+      schema:
+        type: object
+        required: [baseline_reference, change_log, evaluation]
+      build:
+        object:
+          - name: baseline_reference
+            source:
+              kind: phase_output
+              phase: ingest_baseline
+              port: active_metadata
+          - name: change_log
+            source:
+              kind: phase_output
+              phase: synthesize_candidate_spec
+              port: change_log
+          - name: evaluation
+            source:
+              kind: phase_output
+              phase: evaluate_candidate_spec
+              port: assessment_report
+implementation:
+  language: for-llm
+  entrypoint: spec_evolution.program:run
+  parameters:
+    baseline_version:
+      type: string
+      description: Semantic version identifier of the currently accepted specification.
+      default: v5.0.0
+    repository_uri:
+      type: string
+      description: Location of the persisted specifications to seed the refinement loop.
+      default: memory://specs/v5
+    target_version_tag:
+      type: string
+      description: Desired tag for the candidate release when it passes evaluation.
+      default: v6.0.0-rc1
+    target_improvement_score:
+      type: number
+      description: Minimum evaluation score required to accept a candidate specification.
+      default: 0.85
+    max_iterations:
+      type: integer
+      description: Hard cap on the number of refinement loops executed automatically.
+      default: 3
+  source:
+    - uri: memory://programs/spec-evolution/templates/orchestrator
+      type: prompt
+      version: v1.0.0
+      checksum: sha256:7d3b5f2cbe1349a0a1b4f3c6d0e2f9ab
+      integrity: sha256-7d3b5f2cbe1349a0a1b4f3c6d0e2f9ab
+      description: Primary orchestration prompt guiding the iterative improvement workflow.
+    - uri: memory://programs/spec-evolution/assets/evaluation-checklist
+      type: dataset
+      version: v1.0.0
+      checksum: sha256:5a2d9cf0e6b1a4d8f7c2b1a9e3d5c6f0
+      integrity: sha256-5a2d9cf0e6b1a4d8f7c2b1a9e3d5c6f0
+      description: Evaluation criteria and scoring rubric for candidate specifications.
+  return_contract:
+    schema:
+      type: object
+      required: [release]
+      properties:
+        release:
+          $ref: '#/algorithm/outputs/0/schema'
+    produced_by:
+      phase: finalize_release
+      port: release_package
+  phase_contracts:
+    ingest_baseline:
+      description: Load the latest approved spec or the most recent candidate promoted by the loop.
+      inputs:
+        - name: requested_version
+          description: Identifier of the baseline version to inspect when no promoted candidate exists.
+          schema:
+            type: string
+          source:
+            kind: instance
+            path: $.parameters.baseline_version
+        - name: promoted_spec
+          description: Candidate promoted in the previous iteration, if available.
+          schema:
+            type: object
+          optional: true
+          source:
+            kind: phase_output
+            phase: promote_candidate
+            port: updated_spec
+        - name: repository_uri
+          description: Data store holding historical specification snapshots.
+          schema:
+            type: string
+          source:
+            kind: instance
+            path: $.parameters.repository_uri
+      outputs:
+        - name: active_spec
+          description: Materialised specification content used for analysis.
+          schema:
+            type: object
+        - name: active_metadata
+          description: Metadata about provenance, version tags, and retrieval context.
+          schema:
+            type: object
+      errors:
+        - code: baseline_not_found
+          description: The requested baseline specification could not be retrieved.
+          severity: fatal
+      semantics:
+        category: retrieval
+        capabilities: ["fetch_baseline", "read_history"]
+        quality_metrics:
+          - name: retrieval_latency_seconds
+            target: 5
+            unit: s
+            description: Maximum expected latency for fetching the baseline artifact.
+    analyze_opportunities:
+      description: Assess the active specification for control weaknesses and desired governance upgrades.
+      inputs:
+        - name: baseline_spec
+          schema:
+            type: object
+          source:
+            kind: phase_output
+            phase: ingest_baseline
+            port: active_spec
+      outputs:
+        - name: control_gaps
+          description: Structured list of deficiencies and their severity.
+          schema:
+            type: array
+            items:
+              type: object
+        - name: improvement_hypotheses
+          description: Candidate upgrades and rationale for strengthening control over LLM behaviour.
+          schema:
+            type: array
+            items:
+              type: object
+      errors:
+        - code: analysis_unavailable
+          description: Unable to evaluate the baseline due to missing context or tooling access.
+          severity: fatal
+      semantics:
+        category: analysis
+        capabilities: ["gap_analysis", "risk_identification"]
+        quality_metrics:
+          - name: coverage_ratio
+            description: Percentage of control surface assessed during analysis.
+            target: 0.95
+    design_improvement_blueprint:
+      description: Transform findings into a concrete plan of guardrail and governance enhancements.
+      inputs:
+        - name: identified_gaps
+          schema:
+            type: array
+          source:
+            kind: phase_output
+            phase: analyze_opportunities
+            port: control_gaps
+        - name: hypotheses
+          schema:
+            type: array
+          source:
+            kind: phase_output
+            phase: analyze_opportunities
+            port: improvement_hypotheses
+      outputs:
+        - name: improvement_blueprint
+          description: Structured plan describing targeted specification updates.
+          schema:
+            type: object
+        - name: control_assertions
+          description: Acceptance tests and guardrail expectations that the candidate must satisfy.
+          schema:
+            type: array
+            items:
+              type: object
+      errors:
+        - code: planning_conflict
+          description: Conflicting requirements prevent construction of a coherent blueprint.
+          severity: fatal
+      semantics:
+        category: generation
+        capabilities: ["plan_controls", "design_guardrails"]
+        quality_metrics:
+          - name: traceability_index
+            description: Ratio of blueprint items mapped back to identified gaps.
+            target: 0.9
+    synthesize_candidate_spec:
+      description: Produce a candidate specification that realises the planned improvements.
+      inputs:
+        - name: baseline_spec
+          schema:
+            type: object
+          source:
+            kind: phase_output
+            phase: ingest_baseline
+            port: active_spec
+        - name: blueprint
+          schema:
+            type: object
+          source:
+            kind: phase_output
+            phase: design_improvement_blueprint
+            port: improvement_blueprint
+        - name: target_version_tag
+          schema:
+            type: string
+          source:
+            kind: instance
+            path: $.parameters.target_version_tag
+      outputs:
+        - name: candidate_spec
+          description: Draft of the next specification version ready for evaluation.
+          schema:
+            type: object
+        - name: change_log
+          description: Narrative of applied changes and their governance motivations.
+          schema:
+            type: array
+            items:
+              type: object
+      errors:
+        - code: synthesis_failed
+          description: Unable to generate a candidate spec consistent with the blueprint.
+          severity: fatal
+      semantics:
+        category: generation
+        capabilities: ["author_spec", "document_changes"]
+        quality_metrics:
+          - name: blueprint_alignment
+            description: Fraction of blueprint directives realised in the candidate spec.
+            target: 0.95
+    evaluate_candidate_spec:
+      description: Validate the candidate against assertions, risk thresholds, and control objectives.
+      inputs:
+        - name: candidate_spec
+          schema:
+            type: object
+          source:
+            kind: phase_output
+            phase: synthesize_candidate_spec
+            port: candidate_spec
+        - name: control_assertions
+          schema:
+            type: array
+          source:
+            kind: phase_output
+            phase: design_improvement_blueprint
+            port: control_assertions
+      outputs:
+        - name: assessment_report
+          description: Structured assessment including readiness decision and supporting metrics.
+          schema:
+            type: object
+        - name: improvement_score
+          description: Normalised score indicating how much stronger the new controls are.
+          schema:
+            type: number
+      errors:
+        - code: evaluation_blocked
+          description: Critical information missing to assess the candidate specification.
+          severity: fatal
+        - code: evaluation_transient
+          description: Temporary issue (e.g., tool outage) prevented scoring.
+          severity: retryable
+      retry_policy:
+        max_attempts: 3
+        backoff:
+          strategy: exponential
+          min_seconds: 2
+          max_seconds: 30
+      semantics:
+        category: evaluation
+        capabilities: ["score_controls", "risk_assessment"]
+        quality_metrics:
+          - name: evaluator_agreement
+            description: Agreement level across automated and human evaluations.
+            target: 0.9
+    promote_candidate:
+      description: Integrate evaluator feedback and promote the candidate as the next baseline for iteration.
+      inputs:
+        - name: candidate_spec
+          schema:
+            type: object
+          source:
+            kind: phase_output
+            phase: synthesize_candidate_spec
+            port: candidate_spec
+        - name: assessment_report
+          schema:
+            type: object
+          source:
+            kind: phase_output
+            phase: evaluate_candidate_spec
+            port: assessment_report
+      outputs:
+        - name: updated_spec
+          description: Candidate specification amended per feedback for the next loop iteration.
+          schema:
+            type: object
+        - name: feedback_notes
+          description: Key observations guiding the subsequent refinement cycle.
+          schema:
+            type: array
+            items:
+              type: object
+      errors:
+        - code: promotion_conflict
+          description: Feedback conflicts prevent establishing a coherent next baseline.
+          severity: fatal
+      semantics:
+        category: post-processing
+        capabilities: ["apply_feedback", "persist_baseline"]
+        quality_metrics:
+          - name: feedback_resolution
+            description: Portion of evaluator feedback incorporated before the next iteration.
+            target: 0.95
+    curate_iteration_report:
+      description: Assemble evidence demonstrating why the accepted specification strengthens control.
+      inputs:
+        - name: baseline_metadata
+          schema:
+            type: object
+          source:
+            kind: phase_output
+            phase: ingest_baseline
+            port: active_metadata
+        - name: change_log
+          schema:
+            type: array
+          source:
+            kind: phase_output
+            phase: synthesize_candidate_spec
+            port: change_log
+        - name: assessment_report
+          schema:
+            type: object
+          source:
+            kind: phase_output
+            phase: evaluate_candidate_spec
+            port: assessment_report
+      outputs:
+        - name: iteration_summary
+          description: Final audit artefact summarising improvements, evidence, and go-forward actions.
+          schema:
+            type: object
+      errors:
+        - code: report_compilation_failed
+          description: Unable to assemble an auditable summary due to inconsistent artefacts.
+          severity: fatal
+      semantics:
+        category: summarization
+        capabilities: ["compile_audit", "trace_changes"]
+        quality_metrics:
+          - name: evidence_completeness
+            description: Percentage of mandatory evidence sections populated.
+            target: 1.0
+    finalize_release:
+      description: Final packaging of the accepted specification, metadata, and distribution guidance.
+      inputs:
+        - name: candidate_spec
+          schema:
+            type: object
+          source:
+            kind: phase_output
+            phase: synthesize_candidate_spec
+            port: candidate_spec
+        - name: iteration_summary
+          schema:
+            type: object
+          source:
+            kind: phase_output
+            phase: curate_iteration_report
+            port: iteration_summary
+        - name: assessment_report
+          schema:
+            type: object
+          source:
+            kind: phase_output
+            phase: evaluate_candidate_spec
+            port: assessment_report
+      outputs:
+        - name: release_package
+          description: Bundle containing the approved specification, metadata, and rollout notes.
+          schema:
+            type: object
+        - name: release_spec
+          description: The specification document ready for publication.
+          schema:
+            type: object
+        - name: release_version
+          description: Version tag assigned to the released specification.
+          schema:
+            type: string
+      errors:
+        - code: packaging_error
+          description: Failure while assembling the final release artefacts.
+          severity: fatal
+      semantics:
+        category: post-processing
+        capabilities: ["package_release", "publish_guidance"]
+        quality_metrics:
+          - name: packaging_latency_seconds
+            description: Time required to produce the final release bundle.
+            target: 10
