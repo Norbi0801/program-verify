@@ -189,12 +189,18 @@ fn check_title_vs_algorithm(doc: &JsonValue) -> Result<(), String> {
 fn check_phase_contracts(doc: &JsonValue) -> Vec<String> {
     let mut errors = Vec::new();
 
-    let needs_contracts = doc
+    let major_version = doc
         .get("spec_version")
         .and_then(|v| v.as_str())
-        .and_then(parse_semver_major)
-        .map(|major| major >= 3)
-        .unwrap_or(false);
+        .and_then(parse_semver_major);
+
+    let needs_contracts = major_version.map(|major| major >= 3).unwrap_or(false);
+
+    let declared_resources: HashSet<String> = doc
+        .get("resources")
+        .and_then(|v| v.as_object())
+        .map(|map| map.keys().cloned().collect())
+        .unwrap_or_default();
 
     let algorithm = match doc.get("algorithm") {
         Some(value) => value,
@@ -340,6 +346,50 @@ fn check_phase_contracts(doc: &JsonValue) -> Vec<String> {
                     }
                 }
                 _ => {}
+            }
+        }
+
+        if let Some(resources) = contract_obj.get("resources") {
+            match resources.as_array() {
+                Some(items) => {
+                    let mut seen_resources = HashSet::new();
+                    for resource in items {
+                        let Some(name) = resource.as_str().map(str::trim) else {
+                            errors.push(format!(
+                                "Phase '{phase_name}' lists a resource that is not a string"
+                            ));
+                            continue;
+                        };
+
+                        if name.is_empty() {
+                            errors.push(format!(
+                                "Phase '{phase_name}' lists an empty resource name"
+                            ));
+                            continue;
+                        }
+
+                        if !seen_resources.insert(name.to_string()) {
+                            errors.push(format!(
+                                "Phase '{phase_name}' declares resource '{name}' more than once"
+                            ));
+                        }
+
+                        if declared_resources.is_empty() {
+                            errors.push(format!(
+                                "Phase '{phase_name}' references resource '{name}' but no resources are declared"
+                            ));
+                        } else if !declared_resources.contains(name) {
+                            errors.push(format!(
+                                "Phase '{phase_name}' references unknown resource '{name}'"
+                            ));
+                        }
+                    }
+                }
+                None => {
+                    errors.push(format!(
+                        "Phase '{phase_name}' has a resources field that is not an array"
+                    ));
+                }
             }
         }
     }
