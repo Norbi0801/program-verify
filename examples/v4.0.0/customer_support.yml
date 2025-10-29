@@ -1,0 +1,303 @@
+spec_version: v4.0.0
+meta:
+  title: Customer Support (v1)
+  version: v1.0.0
+  purpose: >-
+    Multi-step workflow that triages incoming customer requests, determines severity,
+    and either provides a self-service answer or escalates to a human operator.
+algorithm:
+  name: Customer Support
+  phases:
+    - collect_issue
+    - analyze_intent
+    - self_service
+    - escalate_ticket
+    - finalize
+  graph:
+    entry: collect_issue
+    nodes:
+      collect_issue:
+        type: phase
+        description: Capture the raw customer inquiry and metadata.
+      analyze_intent:
+        type: phase
+        description: Classify the request intent and severity.
+      decide_path:
+        type: if
+        condition: intent.severity >= 0.8
+        branches:
+          - name: escalate
+            description: High severity or VIP customers.
+          - name: assist
+            description: Low severity requests that can be self-served.
+      self_service:
+        type: phase
+        description: Craft a tailored self-service response.
+      escalate_ticket:
+        type: phase
+        description: Prepare the escalation bundle for human agents.
+      finalize:
+        type: phase
+        description: Consolidate results for analytics and returns.
+    edges:
+      - from: collect_issue
+        to: analyze_intent
+      - from: analyze_intent
+        to: decide_path
+      - from: decide_path
+        to: escalate_ticket
+        condition: escalate
+        kind: success
+      - from: decide_path
+        to: self_service
+        condition: assist
+        kind: success
+      - from: escalate_ticket
+        to: finalize
+      - from: self_service
+        to: finalize
+  outputs:
+    - name: review_bundle
+      description: Normalized packet consumed by QA dashboards.
+      schema:
+        type: object
+        required: [classification, escalation_ticket, assistant_reply]
+      build:
+        object:
+          - name: classification
+            source:
+              kind: phase_output
+              phase: analyze_intent
+              port: labels
+          - name: escalation_ticket
+            source:
+              kind: phase_output
+              phase: escalate_ticket
+              port: ticket_id
+          - name: assistant_reply
+            source:
+              kind: phase_output
+              phase: self_service
+              port: response
+          - name: original_context
+            source:
+              kind: instance
+              path: $.conversation.history
+implementation:
+  language: python
+  entrypoint: app.workflows.customer_support:run
+  parameters:
+    severity_threshold:
+      type: number
+      default: 0.75
+      description: Minimum severity score that triggers escalation.
+  source:
+    - uri: git+https://github.com/example/support-bot.git#main
+      type: code
+      version: 1.4.2
+      checksum: sha256:11223344556677889900aabbccddeeff00112233445566778899aabbccddeeff
+      integrity:
+        algorithm: sha256
+        value: 11223344556677889900aabbccddeeff00112233445566778899aabbccddeeff
+      description: Production workflow package.
+    - uri: s3://prompts/support/escalation_prompt.json
+      type: prompt
+      version: 2024.03.18
+  return_contract:
+    schema:
+      type: object
+      required: [handoff]
+    produced_by:
+      phase: finalize
+      port: handoff
+  phase_contracts:
+    collect_issue:
+      description: Gather the latest user message and structured context.
+      inputs:
+        - name: customer_message
+          schema:
+            type: string
+          source:
+            kind: instance
+            path: $.conversation.latest
+        - name: profile
+          schema:
+            type: object
+          source:
+            kind: global
+            path: $.profiles.current
+      outputs:
+        - name: normalized_message
+          schema:
+            type: object
+        - name: context
+          schema:
+            type: object
+            additionalProperties: true
+      errors:
+        - code: COLLECT_TIMEOUT
+          description: Timed out while fetching the latest message from storage.
+          severity: retryable
+      retry_policy:
+        max_attempts: 2
+        retryable_errors: [COLLECT_TIMEOUT]
+        backoff:
+          strategy: linear
+          initial_delay_ms: 250
+      semantics:
+        category: retrieval
+        capabilities: [contextualization]
+    analyze_intent:
+      description: Predict the issue intent, category, and severity.
+      inputs:
+        - name: normalized_message
+          schema:
+            type: object
+          source:
+            kind: phase_output
+            phase: collect_issue
+            port: normalized_message
+        - name: profile
+          schema:
+            type: object
+          source:
+            kind: phase_output
+            phase: collect_issue
+            port: context
+      outputs:
+        - name: labels
+          schema:
+            type: object
+        - name: severity
+          schema:
+            type: number
+      errors:
+        - code: ANALYZE_TRANSIENT
+          description: Upstream LLM request failed with a retryable error.
+          severity: retryable
+        - code: ANALYZE_INVALID
+          description: Unable to parse structured intent payload.
+          severity: fatal
+      retry_policy:
+        max_attempts: 3
+        retryable_errors: [ANALYZE_TRANSIENT]
+        backoff:
+          strategy: exponential
+          initial_delay_ms: 500
+          max_delay_ms: 2000
+      fallback:
+        phase: self_service
+        reason: Defer to templated response when intent extraction fails.
+      semantics:
+        category: classification
+        capabilities: [intent_detection, severity_estimation]
+        quality_metrics:
+          - name: accuracy
+            target: 0.9
+            unit: proportion
+    self_service:
+      description: Generate a helpful self-service reply using knowledge base snippets.
+      inputs:
+        - name: normalized_message
+          schema:
+            type: object
+          source:
+            kind: phase_output
+            phase: collect_issue
+            port: normalized_message
+        - name: intent_labels
+          schema:
+            type: object
+          source:
+            kind: phase_output
+            phase: analyze_intent
+            port: labels
+      outputs:
+        - name: response
+          schema:
+            type: string
+        - name: satisfaction_prediction
+          schema:
+            type: number
+      errors:
+        - code: SELF_RESPONSE_EMPTY
+          description: Model returned an empty reply.
+          severity: warning
+      semantics:
+        category: generation
+        capabilities: [answer_generation]
+    escalate_ticket:
+      description: Prepare the structured ticket for human escalation.
+      inputs:
+        - name: normalized_message
+          schema:
+            type: object
+          source:
+            kind: phase_output
+            phase: collect_issue
+            port: normalized_message
+        - name: severity
+          schema:
+            type: number
+          source:
+            kind: phase_output
+            phase: analyze_intent
+            port: severity
+      outputs:
+        - name: ticket_id
+          schema:
+            type: string
+        - name: handoff_bundle
+          schema:
+            type: object
+      errors:
+        - code: ESC_WRITE_FAIL
+          description: Failed to persist the ticket in the CRM API.
+          severity: retryable
+      retry_policy:
+        max_attempts: 4
+        retryable_errors: [ESC_WRITE_FAIL]
+        backoff:
+          strategy: jittered
+          initial_delay_ms: 1000
+      semantics:
+        category: post-processing
+        capabilities: [ticketing]
+    finalize:
+      description: Blend outputs from previous steps for downstream analytics.
+      inputs:
+        - name: normalized_message
+          schema:
+            type: object
+          source:
+            kind: phase_output
+            phase: collect_issue
+            port: normalized_message
+        - name: assistant_reply
+          schema:
+            type: string
+          source:
+            kind: phase_output
+            phase: self_service
+            port: response
+        - name: escalation_bundle
+          schema:
+            type: object
+          source:
+            kind: phase_output
+            phase: escalate_ticket
+            port: handoff_bundle
+      outputs:
+        - name: handoff
+          schema:
+            type: object
+        - name: analytics_record
+          schema:
+            type: object
+      errors:
+        - code: FINALIZE_JOIN
+          description: Missing expected outputs from one or more upstream phases.
+          severity: fatal
+      semantics:
+        category: analysis
+        capabilities: [reporting]
