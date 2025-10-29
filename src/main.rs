@@ -201,14 +201,41 @@ fn check_phase_contracts(doc: &JsonValue) -> Vec<String> {
         None => return errors,
     };
 
-    let phases = match algorithm.get("phases").and_then(|v| v.as_array()) {
-        Some(items) => items
-            .iter()
-            .filter_map(|item| item.as_str().map(|s| s.to_string()))
-            .collect::<Vec<_>>(),
-        None => return errors,
-    };
-    let phase_set: HashSet<String> = phases.iter().cloned().collect();
+    let mut phase_set: HashSet<String> = HashSet::new();
+    if let Some(items) = algorithm.get("phases").and_then(|v| v.as_array()) {
+        for item in items {
+            if let Some(name) = item.as_str() {
+                phase_set.insert(name.to_string());
+            }
+        }
+    }
+
+    if let Some(graph) = algorithm.get("graph").and_then(|g| g.as_object()) {
+        if let Some(nodes) = graph.get("nodes").and_then(|n| n.as_object()) {
+            for (node_id, node_value) in nodes {
+                if let Some(node_obj) = node_value.as_object() {
+                    if node_obj
+                        .get("type")
+                        .and_then(|t| t.as_str())
+                        .map(|t| t == "phase")
+                        .unwrap_or(false)
+                    {
+                        if let Some(phase_name) = node_obj.get("phase").and_then(|p| p.as_str()) {
+                            phase_set.insert(phase_name.to_string());
+                        } else {
+                            phase_set.insert(node_id.clone());
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if phase_set.is_empty() {
+        return errors;
+    }
+
+    let phases: Vec<String> = phase_set.iter().cloned().collect();
 
     let implementation = match doc.get("implementation") {
         Some(value) => value,
@@ -251,6 +278,7 @@ fn check_phase_contracts(doc: &JsonValue) -> Vec<String> {
     }
 
     let mut outputs_map: HashMap<String, HashSet<String>> = HashMap::new();
+    let mut phase_error_codes: HashMap<String, HashSet<String>> = HashMap::new();
 
     for (phase_name, contract_value) in phase_contracts.iter() {
         if let Some(contract_obj) = contract_value.as_object() {
@@ -264,6 +292,21 @@ fn check_phase_contracts(doc: &JsonValue) -> Vec<String> {
                             ));
                         }
                     }
+                }
+            }
+            if let Some(errors_array) = contract_obj.get("errors").and_then(|v| v.as_array()) {
+                let mut seen_codes = HashSet::new();
+                for error_value in errors_array {
+                    if let Some(code) = error_value.get("code").and_then(|c| c.as_str()) {
+                        if !seen_codes.insert(code.to_string()) {
+                            errors.push(format!(
+                                "Phase '{phase_name}' declares duplicate error code '{code}'",
+                            ));
+                        }
+                    }
+                }
+                if !seen_codes.is_empty() {
+                    phase_error_codes.insert(phase_name.clone(), seen_codes);
                 }
             }
             outputs_map.insert(phase_name.clone(), seen_outputs);
@@ -292,54 +335,78 @@ fn check_phase_contracts(doc: &JsonValue) -> Vec<String> {
                 ));
             }
 
-            let Some(source_obj) = input.get("source").and_then(|s| s.as_object()) else {
-                continue;
-            };
+            if let Some(source_value) = input.get("source") {
+                validate_io_source(
+                    source_value,
+                    Some((phase_name.as_str(), input_name)),
+                    None,
+                    &phase_set,
+                    phase_contracts,
+                    &outputs_map,
+                    |msg| errors.push(msg),
+                );
+            }
+        }
 
-            let Some(kind) = source_obj.get("kind").and_then(|k| k.as_str()) else {
-                continue;
-            };
-
-            match kind {
-                "phase_output" => {
-                    let Some(target_phase) = source_obj.get("phase").and_then(|p| p.as_str()) else {
-                        continue;
-                    };
-
-                    if !phase_set.contains(target_phase) {
-                        errors.push(format!(
-                            "Phase '{phase_name}' references unknown producing phase '{target_phase}' in input '{input_name}'",
-                        ));
-                        continue;
-                    }
-
-                    if !phase_contracts.contains_key(target_phase) {
-                        errors.push(format!(
-                            "Phase '{phase_name}' references phase '{target_phase}' in input '{input_name}' but that phase lacks a phase_contracts entry",
-                        ));
-                        continue;
-                    }
-
-                    let Some(port) = source_obj.get("port").and_then(|p| p.as_str()) else {
-                        continue;
-                    };
-
-                    match outputs_map.get(target_phase) {
-                        Some(outputs) if outputs.contains(port) => {}
-                        _ => errors.push(format!(
-                            "Phase '{phase_name}' expects output '{port}' from phase '{target_phase}' in input '{input_name}', but it is not declared",
-                        )),
+        if let Some(retry_policy) = contract_obj.get("retry_policy").and_then(|v| v.as_object()) {
+            if let Some(retryable_errors) = retry_policy
+                .get("retryable_errors")
+                .and_then(|v| v.as_array())
+            {
+                let declared_codes = phase_error_codes.get(phase_name);
+                for code_value in retryable_errors {
+                    if let Some(code) = code_value.as_str() {
+                        if let Some(codes) = declared_codes {
+                            if !codes.contains(code) {
+                                errors.push(format!(
+                                    "Phase '{phase_name}' retry_policy references unknown error code '{code}'",
+                                ));
+                            }
+                        } else {
+                            errors.push(format!(
+                                "Phase '{phase_name}' retry_policy declares retryable error '{code}' but no errors block is defined",
+                            ));
+                        }
                     }
                 }
-                "instance" | "global" => {
-                    match source_obj.get("path").and_then(|p| p.as_str()) {
-                        Some(path) if !path.trim().is_empty() => {}
-                        _ => errors.push(format!(
-                            "Phase '{phase_name}' input '{input_name}' must declare a non-empty source.path for kind '{kind}'",
-                        )),
-                    }
+            }
+        }
+
+        if let Some(fallback) = contract_obj.get("fallback").and_then(|v| v.as_object()) {
+            if let Some(fallback_phase) = fallback.get("phase").and_then(|p| p.as_str()) {
+                if !phase_set.contains(fallback_phase) {
+                    errors.push(format!(
+                        "Phase '{phase_name}' fallback references unknown phase '{fallback_phase}'",
+                    ));
+                } else if !phase_contracts.contains_key(fallback_phase) {
+                    errors.push(format!(
+                        "Phase '{phase_name}' fallback references phase '{fallback_phase}' but it has no phase_contracts entry",
+                    ));
                 }
-                _ => {}
+            }
+        }
+    }
+
+    if let Some(outputs) = algorithm.get("outputs").and_then(|v| v.as_array()) {
+        for output in outputs {
+            if let Some(build) = output.get("build") {
+                let mut sources = Vec::new();
+                collect_io_sources(build, &mut sources);
+                let output_name = output
+                    .get("name")
+                    .and_then(|n| n.as_str())
+                    .unwrap_or("<composition>");
+                for source in sources {
+                    validate_io_source(
+                        source,
+                        None,
+                        Some(output_name),
+                        &phase_set,
+                        phase_contracts,
+                        &outputs_map,
+                        |msg| errors.push(msg),
+                    );
+                }
             }
         }
     }
@@ -348,7 +415,10 @@ fn check_phase_contracts(doc: &JsonValue) -> Vec<String> {
         .get("return_contract")
         .and_then(|v| v.as_object())
     {
-        if let Some(produced_by) = return_contract.get("produced_by").and_then(|v| v.as_object()) {
+        if let Some(produced_by) = return_contract
+            .get("produced_by")
+            .and_then(|v| v.as_object())
+        {
             let phase = produced_by
                 .get("phase")
                 .and_then(|p| p.as_str())
@@ -378,11 +448,113 @@ fn check_phase_contracts(doc: &JsonValue) -> Vec<String> {
     errors
 }
 
+fn validate_io_source<F>(
+    source: &JsonValue,
+    phase_context: Option<(&str, &str)>,
+    composition_name: Option<&str>,
+    phase_set: &HashSet<String>,
+    phase_contracts: &serde_json::Map<String, JsonValue>,
+    outputs_map: &HashMap<String, HashSet<String>>,
+    mut push_error: F,
+) where
+    F: FnMut(String),
+{
+    let Some(source_obj) = source.as_object() else {
+        return;
+    };
+
+    let Some(kind) = source_obj.get("kind").and_then(|k| k.as_str()) else {
+        return;
+    };
+
+    let composition_label = composition_name.unwrap_or("<composition>");
+
+    match kind {
+        "phase_output" => {
+            let Some(target_phase) = source_obj.get("phase").and_then(|p| p.as_str()) else {
+                return;
+            };
+
+            if !phase_set.contains(target_phase) {
+                push_error(match phase_context {
+                    Some((phase_name, input_name)) => format!(
+                        "Phase '{phase_name}' references unknown producing phase '{target_phase}' in input '{input_name}'",
+                    ),
+                    None => format!(
+                        "Composition '{composition_label}' references unknown producing phase '{target_phase}'",
+                    ),
+                });
+                return;
+            }
+
+            if !phase_contracts.contains_key(target_phase) {
+                push_error(match phase_context {
+                    Some((phase_name, input_name)) => format!(
+                        "Phase '{phase_name}' references phase '{target_phase}' in input '{input_name}' but that phase lacks a phase_contracts entry",
+                    ),
+                    None => format!(
+                        "Composition '{composition_label}' references phase '{target_phase}' but it has no phase_contracts entry",
+                    ),
+                });
+                return;
+            }
+
+            let Some(port) = source_obj.get("port").and_then(|p| p.as_str()) else {
+                return;
+            };
+
+            match outputs_map.get(target_phase) {
+                Some(outputs) if outputs.contains(port) => {}
+                _ => push_error(match phase_context {
+                    Some((phase_name, input_name)) => format!(
+                        "Phase '{phase_name}' expects output '{port}' from phase '{target_phase}' in input '{input_name}', but it is not declared",
+                    ),
+                    None => format!(
+                        "Composition '{composition_label}' expects output '{port}' from phase '{target_phase}' but it is not declared",
+                    ),
+                }),
+            }
+        }
+        "instance" | "global" => {
+            match source_obj.get("path").and_then(|p| p.as_str()) {
+                Some(path) if !path.trim().is_empty() => {}
+                _ => push_error(match phase_context {
+                    Some((phase_name, input_name)) => format!(
+                        "Phase '{phase_name}' input '{input_name}' must declare a non-empty source.path for kind '{kind}'",
+                    ),
+                    None => format!(
+                        "Composition '{composition_label}' source must declare a non-empty path for kind '{kind}'",
+                    ),
+                }),
+            }
+        }
+        _ => {}
+    }
+}
+
+fn collect_io_sources<'a>(value: &'a JsonValue, acc: &mut Vec<&'a JsonValue>) {
+    match value {
+        JsonValue::Object(map) => {
+            if map.contains_key("kind") {
+                acc.push(value);
+            } else {
+                for inner in map.values() {
+                    collect_io_sources(inner, acc);
+                }
+            }
+        }
+        JsonValue::Array(items) => {
+            for item in items {
+                collect_io_sources(item, acc);
+            }
+        }
+        _ => {}
+    }
+}
+
 fn parse_semver_major(ver: &str) -> Option<u64> {
     let trimmed = ver.strip_prefix('v')?;
-    let major_part = trimmed
-        .split(|c| c == '.' || c == '-' || c == '+')
-        .next()?;
+    let major_part = trimmed.split(|c| c == '.' || c == '-' || c == '+').next()?;
     major_part.parse().ok()
 }
 

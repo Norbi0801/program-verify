@@ -14,6 +14,11 @@ inputs (including the explicit source of every payload: instance data, global co
 port of another phase) and the outputs it produces. This allows tooling such as the `llm-compiler`
 to reconstruct dependency graphs and prepare the minimal execution context for every step.
 
+Specification `v4.0.0` introduces control-flow graphs, richer error handling, declarative output
+composition, semantic metadata, and versioned artifacts. The draft schema lives in
+[`schemas/v4.json`](schemas/v4.json); the feature roadmap remains documented in
+[`docs/spec_v4.0.0_plan.md`](docs/spec_v4.0.0_plan.md).
+
 Older documents can continue to target `v1.0.0`; both schemas are listed in `version_map.yaml`.
 
 - --------------------------------------------------------------------------------------------------------------------
