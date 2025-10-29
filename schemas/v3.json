@@ -5,7 +5,7 @@
   "definitions": {
     "semver": {
       "type": "string",
-      "pattern": "^v(?:0|[1-9]\\\d*)(?:\\\.(?:0|[1-9]\\\d*)){0,2}(?:-(?:0|[1-9]\\\d*|[A-Za-z-][0-9A-Za-z-]*)(?:\\\.(?:0|[1-9]\\\d*|[A-Za-z-][0-9A-Za-z-]*))*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$"
+      "pattern": "^v(?:0|[1-9]\\d*)(?:\\.(?:0|[1-9]\\d*)){0,2}(?:-(?:0|[1-9]\\d*|[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|[A-Za-z-][0-9A-Za-z-]*))*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$"
     },
     "schemaOrRef": {
       "description": "Schema fragment or reference describing the shape of an I/O payload.",
