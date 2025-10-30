@@ -1,0 +1,3235 @@
+spec_version: v50
+meta:
+  title: Create Features Standard Path
+  version: v1.0.0
+  governance:
+    risk_tier: low
+    review_cadence: Monthly operations council review
+    approvers:
+      - Product Operations Lead
+      - Head of Delivery
+    service_objectives:
+      -
+        name: Definition of Ready compliance
+        metric: avg_idea_to_launch_days
+        target: 4.8
+        window: Rolling 6 weeks
+        description: "Reduce lead time from 6.0 day baseline by at least 20% while holding guardrails."
+    oversight_capability_matrix:
+      entries:
+        -
+          role: Product Ops Duty Lead
+          capabilities:
+            - Enforce Definition of Ready checklist
+            - Validate telemetry and kill criteria evidence
+            - Coordinate rollback rehearsal owners
+          coverage_scope:
+            - All product pods
+            - Analytics reviewers
+          escalation_latency_minutes: 15
+          readiness_level: expert
+          training_last_completed: "2024-02-12"
+          backup_roles:
+            - Delivery Manager
+      last_reviewed: "2024-02-15T10:00:00Z"
+      owner: Product Operations
+      next_review_due: "2024-05-15"
+  risk_register:
+    owner: Product Operations Council
+    last_reviewed: "2024-02-18T08:30:00Z"
+    entries:
+      -
+        id: "RISK-STANDARD-PATH-01"
+        description: Teams skip Definition of Ready steps causing scope creep and missing telemetry.
+        probability: 0.35
+        impact: high
+        mitigations:
+          - Block merges via Definition of Ready CI gate
+          - Require telemetry and kill criteria evidence before rollout approvals
+        status: monitoring
+        owner: Delivery Enablement Lead
+  lineage:
+    -
+      version: v1.0.0
+      timestamp: "2024-02-19T12:00:00Z"
+      changes:
+        - "Initial publication of the nine-step standard feature path"
+        - Embedded kill criteria and telemetry requirements prior to build
+      approved_by:
+        - Product Operations Council
+        - Engineering Governance Board
+  impact_analysis:
+    methodology: "Baseline six-week delivery metrics compared with phased rollout cohorts; pair t-test on lead time delta and manual audit of Definition of Ready artifacts."
+    control_impacts:
+      -
+        control_reference: "feature-standard-path"
+        business_risk: Without gating we prolong cycle time and accumulate misaligned work in release branches.
+        change_summary: "Introduce the nine-step Definition of Ready path and required telemetry attachments."
+        expected_outcome: "Average lead time \u2193 20%, kill switches triggered before build when ROI < threshold, audit-ready logs."
+    approved_by:
+      - Head of Product Strategy
+      - Risk Steward
+    last_reviewed: "2024-02-20T09:00:00Z"
+    summary: "Standard path is expected to lower cycle time, protect governance evidence, and expose kill decisions earlier."
+  safety_benchmark_coverage:
+    -
+      framework: ISO 42001
+      benchmark_suite: FeatureOps baseline controls
+      coverage_ratio: 0.9
+      controls_mapped:
+        - Definition of Ready gating
+        - Telemetry availability
+      last_reviewed: "2024-02-16T10:30:00Z"
+      evidence_uri: "https://intranet.example.com/audits/feature-standard-path"
+  privacy_budget:
+    total_epsilon: 1.2
+    accounting_model: advanced_composition
+    segments:
+      -
+        name: standard_path_metrics
+        epsilon: 0.4
+  data_retention_policies:
+    -
+      data_classification: internal
+      default_retention_days: 365
+      jurisdiction_overrides:
+        -
+          jurisdiction: EU
+          legal_reference: GDPR Art.5
+          retention_days: 180
+          escalation_contact: "privacy.officer@example.com"
+      purge_process: Airflow job prunes telemetry snapshots after retention window and validates kill criteria deletions.
+      review_cadence_days: 180
+      data_owner: Analytics Platform
+  knowledge_base_links:
+    -
+      title: MVP.standard.md alignment review
+      uri: docs/MVP.standard.md
+      classification: playbook
+      last_validated: "2024-02-10T09:00:00Z"
+      description: "Cross-check that the standard path satisfies MVP.roadmap expectations before build."
+      owner: Product Operations
+      tags:
+        - "standard-path"
+        - mvp
+  user_research_insight_catalog:
+    -
+      id: "INSIGHT-001"
+      summary: PMs asked for a kill switch before committing engineering capacity; DOR checklists reduce scope churn.
+      impact_assessment: "Expected to cut downstream rework by 30%."
+      last_updated: "2024-02-08T15:00:00Z"
+  service_level_negotiations:
+    -
+      contract_id: "SLA-Feature-Standard"
+      partner: Analytics Platform
+      service_scope: Dashboards and telemetry ingestion for standard path metrics
+      status: agreed
+      sla_metrics:
+        -
+          name: Kill criteria signal latency
+          metric: time_to_kill_signal_minutes
+          target: 5.0
+  ci_compliance_gates:
+    -
+      name: Definition of Ready Gate
+      description: Blocks merges when standard path evidence is missing.
+      enforced_checks:
+        - feature_brief_present
+        - kill_criteria_defined
+        - telemetry_plan_approved
+      blocking: true
+      automation_tooling: "GitHub Actions - dor-check"
+      evidence_artifacts:
+        - tmp/.save/feature_brief.yaml
+        - tmp/.save/telemetry_plan.yaml
+      owner: Platform QA Lead
+  regulatory_horizon_scan_log:
+    -
+      jurisdiction: EU
+      policy_name: EU AI Act risk management obligations
+      status: monitoring
+      effective_date: "2024-06-01"
+      impact_summary: "Requires explicit go/no-go criteria before model impacting releases."
+      impacted_controls:
+        - Definition of Ready evidence
+        - Telemetry governance
+  resilience_exercise_schedule:
+    -
+      name: Standard Path Rollback Drill
+      cadence: Quarterly
+      scope: Feature gating service and telemetry pipeline
+      owners:
+        - Platform SRE
+      scenarios:
+        - "Kill criteria triggers rollback mid-rollout"
+        - Telemetry outage during measurement
+      last_executed: "2024-01-12"
+      next_scheduled: "2024-04-18"
+  phased_model_cards:
+    -
+      phase_name: Discovery
+      model_version: v1.0.0
+      target_audience: "Product & Engineering leadership"
+      risk_disclosures:
+        - Standard path depends on manual approvals; rollback plan mitigates human error.
+      performance_metrics:
+        -
+          name: Definition of Ready adoption rate
+          value: 0.82
+      last_updated: "2024-02-15T00:00:00Z"
+  adaptive_risk_appetite_configurations:
+    -
+      configuration_id: "standard-path"
+      context_scope: Feature creation workflow
+      risk_dimensions:
+        -
+          name: Adaptiveriskappetiteconfiguration Risk Dimensions Item 1 Name detail
+      baseline_thresholds:
+        -
+          dimension: cycle_time_index
+          lower_bound: 0.75
+          upper_bound: 0.95
+      dynamic_adjustment_rules:
+        -
+          trigger_condition: "Lead time delta > 1.05 for two consecutive sprints"
+          adjustment: Escalate to kill criteria review and freeze new work intake
+          authorizing_role: Head of Product
+      monitoring_signals:
+        - telemetry.lead_time_delta
+        - telemetry.kill_trigger_rate
+      review_frequency_days: 30
+      approval_process:
+        required_roles:
+          - Adaptiveriskappetiteconfiguration Approval Process Required Roles Item 1 detail
+        decision_sla_hours: 1
+      governance_tier_alignment:
+        -
+          tier: core
+          control_threshold_adjustments:
+            -
+              dimension: cycle_time_index
+              control: Definition of Ready completeness
+              target: 0.9
+          escalation_path:
+            - Product Ops Duty Lead
+            - Delivery Director
+          review_interval_days: 30
+  semantic_versioning_policy:
+    strategy: semver
+    component_scope:
+      - Semanticversioningpolicy Component Scope Item 1 detail
+    release_metadata_fields:
+      - Semanticversioningpolicy Release Metadata Fields Item 1 detail
+    automation_hooks:
+      -
+        name: Versioningautomationhook Name detail
+        trigger: pre_release
+        pipeline: Versioningautomationhook Pipeline detail
+        required: true
+    enforcement_rules:
+      -
+        level: spec
+        criteria: Versioningenforcementrule Criteria detail
+        failure_action: block
+    owner: Semanticversioningpolicy Owner detail
+  program_lifecycle_state_model:
+    states:
+      -
+        state_id: ideation
+        label: Ideation
+        entry_criteria:
+          - Problem statement captured
+          - Success metric drafted
+        required_evidence:
+          - Feature brief draft
+        owners:
+          - Product Ops
+        description: Initial capture of opportunity before Definition of Ready review.
+      -
+        state_id: validated
+        label: Validated scope
+        entry_criteria:
+          - Definition of Ready accepted
+          - Kill criteria signed
+        required_evidence:
+          - User story with AC
+          - Telemetry plan
+          - "Risk & dependency log"
+        owners:
+          - Product Ops
+          - Engineering Lead
+        description: Ready for implementation backlog prioritisation.
+      -
+        state_id: monitoring
+        label: Monitoring
+        entry_criteria:
+          - Rollout executed
+          - Success metric dashboard live
+        required_evidence:
+          - Measurement plan results
+          - Kill decision log
+        owners:
+          - Analytics Platform
+        description: "Post-rollout observation until kill criteria satisfied."
+    transitions:
+      -
+        from_state: ideation
+        to_state: validated
+        documentation_requirements:
+          - Feature brief approved
+          - Definition of Ready checklist complete
+        responsible_roles:
+          - Product Ops Lead
+        transition_window: Within 3 working days of ideation intake
+      -
+        from_state: validated
+        to_state: monitoring
+        documentation_requirements:
+          - Rollout decision record
+          - Telemetry dashboards linked
+        responsible_roles:
+          - Release Manager
+        transition_window: At rollout completion
+    default_state: ideation
+    retirement_state: retired
+  data_sovereignty_control_mapper:
+    -
+      mapping_id: "std-path-eu"
+      jurisdiction: EU
+      data_categories:
+        - feature_metrics
+        - review_artifacts
+      required_controls:
+        - "EU-only storage"
+        - PII scrubbing before export
+      review_cadence_days: 90
+      responsible_owner: Privacy Officer
+  purpose: "Problem: product pods rush into build without a shared definition of value, inflating cycle time and rework. Hypothesis: enforcing the nine-step standard path with Definition of Ready, explicit kill criteria, and telemetry scaffolding will reduce average idea-to-rollout lead time by at least 20% while improving auditability."
+  notes: "Kill criteria established in risk register entry RISK-STANDARD-PATH-01: if lead time delta stays above 10% for two sprints or telemetry error rate exceeds 5%, suspend the path and roll back to prior workflow before adding any new features."
+algorithm:
+  name: standard_feature_path
+  graph:
+    entry: define_problem
+    nodes:
+      define_problem:
+        type: phase
+        phase: define_problem
+        description: "Define Problem phase in the nine-step standard workflow."
+      align_mvp:
+        type: phase
+        phase: align_mvp
+        description: "Align Mvp phase in the nine-step standard workflow."
+      prioritize:
+        type: phase
+        phase: prioritize
+        description: "Prioritize phase in the nine-step standard workflow."
+      scope:
+        type: phase
+        phase: scope
+        description: "Scope phase in the nine-step standard workflow."
+      story_and_ac:
+        type: phase
+        phase: story_and_ac
+        description: "Story And Ac phase in the nine-step standard workflow."
+      risks_and_dependencies:
+        type: phase
+        phase: risks_and_dependencies
+        description: "Risks And Dependencies phase in the nine-step standard workflow."
+      design_solution:
+        type: phase
+        phase: design_solution
+        description: "Design Solution phase in the nine-step standard workflow."
+      rollout_plan:
+        type: phase
+        phase: rollout_plan
+        description: "Rollout Plan phase in the nine-step standard workflow."
+      validation_plan:
+        type: phase
+        phase: validation_plan
+        description: "Validation Plan phase in the nine-step standard workflow."
+    edges:
+      -
+        from: define_problem
+        to: align_mvp
+        kind: normal
+      -
+        from: align_mvp
+        to: prioritize
+        kind: normal
+      -
+        from: prioritize
+        to: scope
+        kind: normal
+      -
+        from: scope
+        to: story_and_ac
+        kind: normal
+      -
+        from: story_and_ac
+        to: risks_and_dependencies
+        kind: normal
+      -
+        from: risks_and_dependencies
+        to: design_solution
+        kind: normal
+      -
+        from: design_solution
+        to: rollout_plan
+        kind: normal
+      -
+        from: rollout_plan
+        to: validation_plan
+        kind: normal
+  outputs:
+    -
+      name: feature_brief
+      build:
+        object:
+          -
+            name: meta
+            source:
+              kind: instance
+              path: /meta
+            description: Meta context with governance links.
+          -
+            name: algorithm
+            source:
+              kind: instance
+              path: /algorithm
+            description: Control flow description of the standard path.
+          -
+            name: implementation
+            source:
+              kind: instance
+              path: /implementation
+            description: Operational runbook and controls.
+      persistence:
+        path_template: "tmp/.save/{output}.yaml"
+        relative_to: cwd
+        write_mode: replace
+        trigger: phase_completion
+        checksum_algorithm: sha256
+        record_manifest: true
+      description: "Persistent artifact capturing the nine-step standard path decisions."
+  state_machine:
+    initial_state: draft
+    states:
+      -
+        name: draft
+        description: Feature brief being authored.
+        linked_phase: define_problem
+      -
+        name: ready_for_signoff
+        description: Definition of Ready satisfied.
+        linked_phase: scope
+      -
+        name: monitoring
+        description: Observing rollout metrics.
+        linked_phase: validation_plan
+    terminal_states:
+      - retired
+    transitions:
+      -
+        from: draft
+        to: ready_for_signoff
+        guard: Definition of Ready checklist complete
+      -
+        from: ready_for_signoff
+        to: monitoring
+        guard: Rollout completed with canary success
+      -
+        from: monitoring
+        to: retired
+        guard: Kill criteria evaluated and documented
+  loop_validation_tables:
+    -
+      loop_node: validation_plan
+      transition_cases:
+        -
+          condition: Success metric beat target and guardrails green
+          deterministic: true
+          expected_transition: monitoring
+        -
+          condition: Kill criteria hit or metric flat
+          deterministic: true
+          expected_transition: define_problem
+      validation_owner: Product Operations Lead
+  phases:
+    - define_problem
+    - align_mvp
+    - prioritize
+    - scope
+    - story_and_ac
+    - risks_and_dependencies
+    - design_solution
+    - rollout_plan
+    - validation_plan
+implementation:
+  language: yaml
+  entrypoint: create_features.yaml
+  return_contract:
+    schema:
+      type: object
+      required:
+        - meta
+        - algorithm
+        - implementation
+  phase_contracts:
+    standard:
+      inputs:
+        -
+          name: feature_brief_template
+          schema:
+            type: object
+            required:
+              - problem
+              - goal
+              - metric
+            properties:
+              problem:
+                type: string
+              goal:
+                type: string
+              metric:
+                type: string
+          source:
+            kind: instance
+            path: /templates/feature_brief
+          provenance:
+            source: Product Ops knowledge base
+            collection_method: Manually curated standard template
+            lawful_basis: Legitimate interest
+            classification: internal
+            retention: 365 days
+            last_refreshed: "2024-02-05T00:00:00Z"
+            data_owner: Product Operations
+          classification: internal
+          privacy_risk_heuristic:
+            methodology: Template review
+            score: 0.1
+            confidence: high
+            last_reviewed: "2024-02-05T00:00:00Z"
+            mitigations:
+              - PII is prohibited in the template
+            owner: Privacy Office
+      outputs:
+        -
+          name: feature_brief
+          schema:
+            type: object
+            required:
+              - problem
+              - success_metric
+              - kill_criteria
+              - telemetry_plan
+            properties:
+              problem:
+                type: string
+              success_metric:
+                type: string
+              kill_criteria:
+                type: string
+              telemetry_plan:
+                type: string
+          persistence:
+            path_template: "tmp/.save/{phase}/{output}.yaml"
+            relative_to: cwd
+            write_mode: replace
+            trigger: phase_completion
+            checksum_algorithm: sha256
+            record_manifest: true
+          classification: internal
+          integrity:
+            hashes:
+              -
+                algorithm: sha256
+                value: 99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa
+                canonical_source: tmp/.save/feature_brief.yaml
+            attestations:
+              -
+                type: "peer-review"
+                issuer: Product Ops Lead
+                issued_at: "2024-02-19T12:30:00Z"
+                scope: standard feature path
+                evidence_uri: "https://reviews.example.com/feature-standard-path"
+            verification_schedule: Weekly hash verification
+      event_triggers:
+        -
+          name: "kill-criteria-review"
+          event_source:
+            kind: schedule
+            identifier: "daily-standup-utc"
+          conditions:
+            -
+              type: filter
+              expression: event.payload.phase == 'validation_plan'
+          payload_schema:
+            type: object
+            properties:
+              phase:
+                type: string
+          rate_limit:
+            max_events: 5
+            interval_seconds: 3600
+          delivery_guarantee: at_least_once
+          safety_checks:
+            - feature_brief_has_kill_criteria
+            - telemetry_plan_attached
+          dead_letter_policy: "Send to ops-oncall Slack channel"
+      errors:
+        -
+          code: MISSING_KILL_CRITERIA
+          description: Definition of Ready checklist missing kill criteria.
+          severity: fatal
+      semantics:
+        category: analysis
+        quality_metrics:
+          -
+            name: cycle_time_delta
+            target: 0.8
+            unit: ratio vs baseline
+            description: "Maintains 20% improvement benchmark."
+        description: Orchestrates evidence capture and Definition of Ready validation.
+        capabilities:
+          - Evidence orchestration
+          - Kill criteria validation
+      observability:
+        -
+          stream: "standard-path-metrics"
+          signals:
+            - lead_time_delta
+            - kill_trigger_rate
+          sampling: "100%"
+          correlation:
+            identifier_name: feature_id
+            propagation_map:
+              -
+                phase: define_problem
+                field: feature_id
+              -
+                phase: validation_plan
+                field: feature_id
+          alert_thresholds:
+            - "lead_time_delta > 1.1 for 2 days"
+          retention_policy: 90 days
+      human_review:
+        -
+          roles:
+            - Product Ops Lead
+            - Engineering Manager
+          trigger: Definition of Ready checklist completion
+          checklist:
+            - Success metric reviewed
+            - Kill criteria signed
+            - Telemetry plan validated
+          sla_minutes: 240
+          blocking: true
+          audit_trail:
+            system: Notion
+            uri: "https://notion.example.com/standard-path/reviews"
+            retention_days: 365
+          access_policies:
+            -
+              role: Product Ops Lead
+              resources:
+                - feature_brief
+              constraints:
+                - MFA
+              notes: Read/write during review window
+          skill_matrix:
+            -
+              role: Product Ops Lead
+              skills:
+                - product_sense
+                - data_literacy
+              last_verified: "2024-01-30"
+      human_escalation_templates:
+      -
+        name: "standard-path-break-glass"
+        risk_tier: high
+        triggers:
+          - Telemetry outage during validation window
+          - Kill criteria breach unresolved for 30 minutes
+        actions:
+          - Pause feature flag rollout
+          - Page product and delivery leadership
+        escalation_chain:
+          -
+            role: Product Ops Lead
+            responsibility: Coordinate rollback and communication
+            sla_minutes: 15
+            fallback_actions:
+              - Escalate to Head of Delivery
+          -
+            role: Head of Delivery
+            responsibility: Approve sustained freeze and resource replan
+            sla_minutes: 30
+        fallback_decision_window_minutes: 60
+        audit_trail:
+          storage: incident-tracker
+          fields:
+            -
+              name: incident_id
+              type: string
+              required: true
+            -
+              name: resolution_notes
+              type: string
+          retention_days: 365
+          access_controls:
+            - ops-oncall
+        channels:
+          - PagerDuty
+          - Slack
+        instructions:
+          - Freeze rollout
+          - Notify Head of Product
+          - Trigger rollback plan
+        severity_levels:
+          - high
+          - critical
+        fairness_checks:
+          -
+            name: "standard-path-fairness"
+            risk: "Uneven Definition of Ready enforcement across teams"
+            mitigation: "Weekly coaching sessions for pods with low adoption"
+            protected_groups:
+              - Feature pods with high customer impact
+            monitoring:
+              - Weekly adoption dashboard review
+            review_interval_days: 30
+            mitigations:
+              - Publish weekly adoption metrics by team
+            baseline_metric: dor_adoption_rate
+            threshold: 0.7
+        behavioral_contracts:
+          -
+            contract_name: standard-path-llm-drafting
+            summary: Guardrail for AI assistants drafting feature briefs.
+            allowed_behaviors:
+              - Summarise problem context
+              - Suggest acceptance criteria wording
+            forbidden_behaviors:
+              - Change kill criteria thresholds
+            enforcement_mechanisms:
+              - Require human co-sign on generated sections
+              - Record diff for review history
+            violation_response:
+              severity_scale: medium
+              escalation_path:
+                - Product Ops Lead
+                - Head of Delivery
+              actions:
+                - Disable AI suggestions for the feature
+                - Trigger manual review of recent drafts
+            monitoring_channels:
+              - llm_guardrail_hypothesis_tracking
+              - ops-observability
+            name: "llm-drafting-guardrails"
+            description: Ensure assisted drafting tools cannot approve Definition of Ready on their own.
+            guardrails:
+              - LLM suggestions require human approval
+            disallowed_behaviors:
+              - "Auto-approve kill criteria"
+            monitoring:
+              - llm_guardrail_hypothesis_tracking
+            fallback_actions:
+              - Escalate to human reviewer
+            evidence_requirements:
+              - Attach redlines in review record
+            last_reviewed: "2024-02-14T00:00:00Z"
+            owner: Product Operations Lead
+        tool_capability_scopes:
+          -
+            tool: "standard-path-cli"
+            allowed_actions:
+              - collect_evidence
+              - attach_supporting_artifacts
+            capabilities:
+              - collect_evidence
+              - generate_feature_brief_summary
+            limits:
+              - "read-only access to telemetry dashboards"
+            denied_actions:
+              - approve_definition_of_ready
+            function_classes:
+              - workflow_automation
+        preconditions:
+          -
+            id: dor-evidence-ready
+            description: Problem statement and value metric captured before prioritisation.
+            category: data
+            validation_checks:
+              -
+                name: feature_brief_has_problem_and_metric
+                method: automated
+                success_criteria: YAML includes non-empty problem and success_metric fields
+            type: evidence
+            verification: CI gate ensures feature_brief.yaml contains problem + metric
+      compiler_hints:
+        -
+          phase: validation_plan
+          objective: Surface kill criteria diff
+          strategy: Leverage telemetry diff against prior release
+          guidance:
+            - Highlight guardrail breaches
+            - "Suggest rollback if improvement < 10%"
+      interface_contract:
+        name: "standard-path-api"
+        phase: validation_plan
+        message_sequence:
+          -
+            order: 1
+            actor: external_system
+            message_purpose: Submit telemetry summary
+            schema:
+              type: object
+              required:
+                - feature_id
+                - metric_value
+            expected_latency_ms: 500
+            timeout_ms: 2000
+            tool_invocations:
+              - telemetry_ingest
+        timing_requirements:
+          latency_budget_ms: 2000
+          max_duration_ms: 3000
+        error_semantics:
+          failure_modes:
+            - payload_invalid
+            - metric_missing
+          recovery_actions:
+            - Request resubmission from telemetry service
+          retryable: true
+          fallback_path: "Escalate to analytics on-call"
+        description: API exposed to telemetry service for metric ingestion.
+        telemetry_signals:
+          - ingest_success
+          - ingest_latency
+        ordering_guarantee: strict
+      deprecation_plan:
+        current_phase: standard
+        status: evaluation
+        milestones:
+          -
+            name: Assess automation coverage
+            target_date: "2024-09-01"
+            exit_criteria:
+              - New workflow decision recorded
+        owner: Product Ops Lead
+        communications_plan: Monthly newsletter update to product org
+      description: "Standard nine-step workflow covering problem framing through telemetry validation."
+  phase_explainability_reports:
+    -
+      phase: Phaseexplainabilityreport Phase detail
+      report_id: Phaseexplainabilityreport Report Id detail
+      generated_at: "2024-01-01T00:00:00Z"
+      decision_points:
+        -
+          decision_id: Explainabilitydecision Decision Id detail
+          description: Explainabilitydecision Description detail
+          rationale: Explainabilitydecision Rationale detail
+          inputs:
+            -
+              source: Explainabilityinputreference Source detail
+              path: Explainabilityinputreference Path detail
+              summary: Explainabilityinputreference Summary detail
+          outcome: Explainabilitydecision Outcome detail
+          confidence: 0.0
+      models_invoked:
+        - Phaseexplainabilityreport Models Invoked Item 1 detail
+      evidence_links:
+        - Phaseexplainabilityreport Evidence Links Item 1 detail
+      retention_days: 1
+  source:
+    -
+      uri: "https://git.example.com/playbooks/create_features"
+      type: code
+      version: main
+      checksum: "sha256:9d5c1a4b3f0a2cbe"
+      integrity:
+        algorithm: sha256
+        value: abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789
+      attestations:
+        -
+          type: "build-signature"
+          issuer: CI pipeline
+          issued_at: "2024-02-19T12:15:00Z"
+          scope: "standard-path-playbook"
+          evidence_uri: "https://ci.example.com/jobs/12345/artifacts/attestation.json"
+  schema_fragments:
+    -
+      name: Migratableschemafragment Name detail
+      version: v1.0.0
+      schema:
+      interop_targets:
+        -
+          name: Migratableschemafragment Interop Targets Item 1 Name detail
+      migration_plan:
+        strategy: Fragmentmigrationplan Strategy detail
+        backward_compatible: true
+  data_lineage:
+    datasets:
+      -
+        name: Datasetlineagerecord Name detail
+        role: training
+        source_uri: Datasetlineagerecord Source Uri detail
+        version: Datasetlineagerecord Version detail
+        ingest_timestamp: "2024-01-01T00:00:00Z"
+        privacy_risk_heuristic:
+          methodology: Privacyriskheuristic Methodology detail
+          score: 0.0
+          confidence: low
+          last_reviewed: "2024-01-01T00:00:00Z"
+          mitigations:
+            - Privacyriskheuristic Mitigations Item 1 detail
+  data_dependency_matrix:
+    phases:
+      - Datadependencymatrix Phases Item 1 detail
+    dependencies:
+      -
+        from_phase: Phasedependencyedge From Phase detail
+        to_phase: Phasedependencyedge To Phase detail
+        data_paths:
+          - Phasedependencyedge Data Paths Item 1 detail
+        provenance_controls:
+          - Phasedependencyedge Provenance Controls Item 1 detail
+    last_reviewed: "2024-01-01T00:00:00Z"
+  compiler_ir_manifests:
+    -
+      release_version: v1.0.0
+      compiler_version: Compilerirmanifest Compiler Version detail
+      ir_artifacts:
+        -
+          name: Compilerirartifact Name detail
+          stage: parsing
+          format: Compilerirartifact Format detail
+          hash:
+            algorithm: Artifacthash Algorithm detail
+            value: Artifacthash Value detail
+          source: Compilerirartifact Source detail
+      determinism_proof: Compilerirmanifest Determinism Proof detail
+  runtime_controls:
+    guards:
+      -
+        name: Runtimeguard Name detail
+        type: rate_limit
+        enforced: true
+        conditions:
+          -
+            expression: Guardcondition Expression detail
+            action: allow
+        conflict_resolution:
+          strategy: priority
+          decision_tree:
+            -
+              condition: Conflictresolutionnode Condition detail
+              resolution_action: Conflictresolutionnode Resolution Action detail
+              outcome: Conflictresolutionnode Outcome detail
+          escalation_paths:
+            -
+              condition: Conflictresolutionescalation Condition detail
+              roles:
+                - Conflictresolutionescalation Roles Item 1 detail
+              time_limit_minutes: 1
+          fallback_action: Guardrailconflictresolution Fallback Action detail
+          audit_requirements: Guardrailconflictresolution Audit Requirements detail
+    telemetry:
+      -
+        name: Telemetrystream Name detail
+        schema:
+        frequency: Telemetrystream Frequency detail
+        destinations:
+          - Telemetrystream Destinations Item 1 detail
+    escalation_policies:
+      -
+        trigger: Escalationpolicy Trigger detail
+        actions:
+          - Escalationpolicy Actions Item 1 detail
+    anomaly_detectors:
+      -
+        name: Anomalydetector Name detail
+        signals:
+          - Anomalydetector Signals Item 1 detail
+        thresholds:
+          - Anomalydetector Thresholds Item 1 detail
+        response_plan: Anomalydetector Response Plan detail
+        sla_minutes: 1
+    alert_suppression_rules:
+      -
+        name: Alertsuppressionrule Name detail
+        scope: program
+        conditions:
+          -
+            expression: Alertsuppressionrule Conditions Item 1 Expression detail
+            reason: Alertsuppressionrule Conditions Item 1 Reason detail
+        duration_minutes: 1
+        audit_window_minutes: 1
+    kill_switches:
+      -
+        name: Killswitch Name detail
+        conditions:
+          -
+            expression: Guardcondition Expression detail
+            action: allow
+        action: halt_program
+        max_disable_minutes: 1
+    audit_sinks:
+      -
+        name: Auditsink Name detail
+        destination: Auditsink Destination detail
+        retention_days: 30
+        storage_class: append_only
+        encryption:
+          status: encrypted_at_rest
+          algorithm: Persistenceencryption Algorithm detail
+        monitored_by:
+          - Auditsink Monitored By Item 1 detail
+    privacy_preserving_logging_profiles:
+      -
+        name: Privacypreservingloggingprofile Name detail
+        applies_to:
+          - Privacypreservingloggingprofile Applies To Item 1 detail
+        redaction_depth: field_level
+        retention_days: 0
+        masking_techniques:
+          - Privacypreservingloggingprofile Masking Techniques Item 1 detail
+        review_cadence_days: 1
+        approved_by:
+          - Privacypreservingloggingprofile Approved By Item 1 detail
+    privileged_sessions:
+      -
+        name: Privilegedsessioncontrol Name detail
+        scope: tool
+        approval_chain:
+          - Privilegedsessioncontrol Approval Chain Item 1 detail
+        max_session_minutes: 5
+        monitoring_channels:
+          - Privilegedsessioncontrol Monitoring Channels Item 1 detail
+    tamper_protections:
+      -
+        name: Tamperprotection Name detail
+        mechanism: immutable_storage
+        scope: logs
+        monitoring_channels:
+          - Tamperprotection Monitoring Channels Item 1 detail
+        response_plan: Tamperprotection Response Plan detail
+    resource_quotas:
+      -
+        scope: program
+        target: Resourcequota Target detail
+        limits:
+        enforcement: hard
+    concurrency_budgets:
+      -
+        name: Concurrencybudgetpolicy Name detail
+        scope: program
+        max_parallelism: 1
+        recovery_seconds: 0
+    sandbox_escape_detection:
+      -
+        name: Sandboxescapeheuristic Name detail
+        signals:
+          - Sandboxescapeheuristic Signals Item 1 detail
+        response_plan: Sandboxescapeheuristic Response Plan detail
+        detection_window_seconds: 1
+    energy_telemetry:
+      -
+        metric: Energytelemetryrequirement Metric detail
+        unit: Energytelemetryrequirement Unit detail
+        collection_interval: Energytelemetryrequirement Collection Interval detail
+        aggregation: Energytelemetryrequirement Aggregation detail
+        destinations:
+          - Energytelemetryrequirement Destinations Item 1 detail
+    streaming_policies:
+      -
+        name: Streamingsupportpolicy Name detail
+        enabled: true
+        buffer_strategy: time_window
+    guardrail_hot_swap_policies:
+      -
+        name: Guardrailhotswappolicy Name detail
+        eligible_guards:
+          - Guardrailhotswappolicy Eligible Guards Item 1 detail
+        approver_roles:
+          - Guardrailhotswappolicy Approver Roles Item 1 detail
+        audit:
+          channels:
+            - Guardrailhotswappolicy Audit Channels Item 1 detail
+          retention_days: 1
+        rollback_actions:
+          - Guardrailhotswappolicy Rollback Actions Item 1 detail
+        toggle_approval:
+          workflow_id: Guardrailtoggleapprovalworkflow Workflow Id detail
+          required_signoffs:
+            - Guardrailtoggleapprovalworkflow Required Signoffs Item 1 detail
+          lead_time_minutes: 0
+    guardrail_versioning_manifest:
+      current_version: v1.0.0
+      supported_versions:
+        - v1.0.0
+      rollback_procedures:
+        - Guardrailversioningmanifest Rollback Procedures Item 1 detail
+      rollforward_procedures:
+        - Guardrailversioningmanifest Rollforward Procedures Item 1 detail
+      verification_checks:
+        - Guardrailversioningmanifest Verification Checks Item 1 detail
+      change_window_policy:
+        maintenance_windows:
+          - Guardrailversioningmanifest Change Window Policy Maintenance Windows Item 1 detail
+        approver_roles:
+          - Guardrailversioningmanifest Change Window Policy Approver Roles Item 1 detail
+        notification_channels:
+          - Guardrailversioningmanifest Change Window Policy Notification Channels Item 1 detail
+    guardrail_constraint_solvers:
+      -
+        name: Guardrailconstraintsolver Name detail
+        solver_engine: milp
+        optimization_strategy: weighted_sum
+        objectives:
+          -
+            name: Guardrailoptimizationobjective Name detail
+            metric: Guardrailoptimizationobjective Metric detail
+            direction: maximize
+            weight: 0.0
+        constraints:
+          -
+            metric: Guardrailconstraint Metric detail
+            operator: <
+            threshold: 1.0
+            severity: low
+            enforcement_action: block
+        tuning_cadence: Guardrailconstraintsolver Tuning Cadence detail
+        decision_logging:
+          enabled: true
+          storage: Guardrailconstraintsolver Decision Logging Storage detail
+          retention_days: 1
+        telemetry_channels:
+          - Guardrailconstraintsolver Telemetry Channels Item 1 detail
+    emergency_shutdowns:
+      -
+        name: Emergencyshutdownplan Name detail
+        triggers:
+          - Emergencyshutdownplan Triggers Item 1 detail
+        actions:
+          - Emergencyshutdownplan Actions Item 1 detail
+        communication_plan: Emergencyshutdownplan Communication Plan detail
+        recovery_steps:
+          - Emergencyshutdownplan Recovery Steps Item 1 detail
+    watermarking_policies:
+      -
+        name: Watermarkingpolicy Name detail
+        technique: statistical
+        scope: program
+        verification_method: Watermarkingpolicy Verification Method detail
+    secure_enclave_attestations:
+      -
+        phase: Secureenclaveattestationrequirement Phase detail
+        attestation_provider: Secureenclaveattestationrequirement Attestation Provider detail
+        measurements:
+          - Secureenclaveattestationrequirement Measurements Item 1 detail
+        evidence_uri: Secureenclaveattestationrequirement Evidence Uri detail
+    trust_signal_aggregators:
+      -
+        name: Trustsignalaggregator Name detail
+        signals:
+          -
+            source: Trustsignalaggregator Signals Item 1 Source detail
+            metric: Trustsignalaggregator Signals Item 1 Metric detail
+            weight: 1.0
+        aggregation_strategy: weighted_average
+        update_interval_seconds: 1
+  tool_policies:
+    -
+      tool: Toolpolicy Tool detail
+      allowed_actions:
+        - Toolpolicy Allowed Actions Item 1 detail
+      guardrails:
+        -
+          name: Runtimeguard Name detail
+          type: rate_limit
+          enforced: true
+          conditions:
+            -
+              expression: Guardcondition Expression detail
+              action: allow
+          conflict_resolution:
+            strategy: priority
+            decision_tree:
+              -
+                condition: Conflictresolutionnode Condition detail
+                resolution_action: Conflictresolutionnode Resolution Action detail
+                outcome: Conflictresolutionnode Outcome detail
+            escalation_paths:
+              -
+                condition: Conflictresolutionescalation Condition detail
+                roles:
+                  - Conflictresolutionescalation Roles Item 1 detail
+                time_limit_minutes: 1
+            fallback_action: Guardrailconflictresolution Fallback Action detail
+            audit_requirements: Guardrailconflictresolution Audit Requirements detail
+      access_tier: standard
+      usage_limits:
+        -
+          metric: calls
+          threshold: 0.0
+          window_minutes: 1
+          enforcement_action: throttle
+      segregation_controls:
+        -
+          control_id: Segregationcontrol Control Id detail
+          enforced: true
+          roles:
+            - Segregationcontrol Roles Item 1 detail
+          incompatible_roles:
+            - Segregationcontrol Incompatible Roles Item 1 detail
+          break_glass_policy: Segregationcontrol Break Glass Policy detail
+  assurance_program:
+    tests:
+      -
+        name: Assurancetest Name detail
+        objective: Assurancetest Objective detail
+        type: unit
+        frequency: Assurancetest Frequency detail
+        gating: true
+    exit_criteria:
+      - Assuranceprogram Exit Criteria Item 1 detail
+    drift_monitors:
+      - Assuranceprogram Drift Monitors Item 1 detail
+    scenario_tests:
+      -
+        name: Governancescenario Name detail
+        target_controls:
+          - Governancescenario Target Controls Item 1 detail
+        risk_focus: Governancescenario Risk Focus detail
+        probes:
+          -
+            name: Scenarioprobe Name detail
+            trigger: Scenarioprobe Trigger detail
+            expected_outcome: Scenarioprobe Expected Outcome detail
+            simulation_controls:
+              random_seed: 1
+              iterations: 1
+        success_threshold: 0.0
+    synthetic_trace_replay_scenarios:
+      -
+        name: Synthetictracereplayscenario Name detail
+        telemetry_feeds:
+          - Synthetictracereplayscenario Telemetry Feeds Item 1 detail
+        replay_frequency: Synthetictracereplayscenario Replay Frequency detail
+        success_criteria:
+          - Synthetictracereplayscenario Success Criteria Item 1 detail
+        failure_handling:
+          - Synthetictracereplayscenario Failure Handling Item 1 detail
+    red_team_workflows:
+      -
+        scenario_name: Redteamworkflow Scenario Name detail
+        integration_points:
+          - Redteamworkflow Integration Points Item 1 detail
+        cadence: Redteamworkflow Cadence detail
+        owner: Redteamworkflow Owner detail
+        reporting_channels:
+          - Redteamworkflow Reporting Channels Item 1 detail
+        integration_workflow:
+          phases:
+            - Redteamintegrationworkflow Phases Item 1 detail
+          handoffs:
+            -
+              from: Redteamintegrationworkflow Handoffs Item 1 From detail
+              to: Redteamintegrationworkflow Handoffs Item 1 To detail
+              artifact: Redteamintegrationworkflow Handoffs Item 1 Artifact detail
+          verification_steps:
+            - Redteamintegrationworkflow Verification Steps Item 1 detail
+    formal_verification:
+      -
+        name: Formalverificationhook Name detail
+        scope: Formalverificationhook Scope detail
+        artifact: Formalverificationhook Artifact detail
+        proof_system: Formalverificationhook Proof System detail
+        status: planned
+    calibration_datasets:
+      -
+        name: Calibrationdataset Name detail
+        dataset_uri: Calibrationdataset Dataset Uri detail
+        version: Calibrationdataset Version detail
+        benchmark_metrics:
+          - Calibrationdataset Benchmark Metrics Item 1 detail
+    federated_evaluations:
+      -
+        name: Federatedevaluationaggregate Name detail
+        cohorts:
+          -
+            node_id: Federatedevaluationnode Node Id detail
+            dataset: Federatedevaluationnode Dataset detail
+            weight: 0.0
+            scoring_method: Federatedevaluationnode Scoring Method detail
+            privacy_guarantees:
+              mechanism: Federatedevaluationnode Privacy Guarantees Mechanism detail
+        aggregation_method: weighted_mean
+        reporting_window: Federatedevaluationaggregate Reporting Window detail
+        compliance_constraints:
+          - Federatedevaluationaggregate Compliance Constraints Item 1 detail
+  incident_playbooks:
+    -
+      name: Incidentplaybook Name detail
+      trigger: Incidentplaybook Trigger detail
+      roles:
+        - Incidentplaybook Roles Item 1 detail
+      actions:
+        - Incidentplaybook Actions Item 1 detail
+      communication_channels:
+        - Incidentplaybook Communication Channels Item 1 detail
+      post_incident_review_window_hours: 1
+  privacy_incident_workflows:
+    -
+      name: Privacyincidentworkflow Name detail
+      trigger_conditions:
+        - Privacyincidentworkflow Trigger Conditions Item 1 detail
+      notification_channels:
+        - Privacyincidentworkflow Notification Channels Item 1 detail
+      escalation_sla_minutes: 1
+      regulatory_obligations:
+        - Privacyincidentworkflow Regulatory Obligations Item 1 detail
+      responsible_roles:
+        - Privacyincidentworkflow Responsible Roles Item 1 detail
+  remediation_playbooks:
+    -
+      name: Remediationplaybook Name detail
+      kpi: Remediationplaybook Kpi detail
+      trigger_condition: Remediationplaybook Trigger Condition detail
+      actions:
+        - Remediationplaybook Actions Item 1 detail
+      owner: Remediationplaybook Owner detail
+      sla_minutes: 1
+  vulnerability_disclosure_workflows:
+    -
+      name: Vulnerabilitydisclosureworkflow Name detail
+      scope: Vulnerabilitydisclosureworkflow Scope detail
+      intake_channels:
+        - Vulnerabilitydisclosureworkflow Intake Channels Item 1 detail
+      triage_process: Vulnerabilitydisclosureworkflow Triage Process detail
+      response_sla_minutes: 1
+      notification_targets:
+        - Vulnerabilitydisclosureworkflow Notification Targets Item 1 detail
+  continual_learning_governance:
+    handoff_owner: Continuallearninggovernance Handoff Owner detail
+    approval_roles:
+      - Continuallearninggovernance Approval Roles Item 1 detail
+    retraining_frequency: Continuallearninggovernance Retraining Frequency detail
+    eligibility_criteria:
+      - Continuallearninggovernance Eligibility Criteria Item 1 detail
+    handoff_steps:
+      -
+        name: Learninghandoffstep Name detail
+        description: Learninghandoffstep Description detail
+        evidence_required:
+          - Learninghandoffstep Evidence Required Item 1 detail
+        owner: Learninghandoffstep Owner detail
+    evaluation_gates:
+      -
+        name: Retraininggate Name detail
+        metrics:
+          - Retraininggate Metrics Item 1 detail
+        thresholds:
+          -
+            metric: Retraininggate Thresholds Item 1 Metric detail
+            operator: <
+            value: 1.0
+        approver_roles:
+          - Retraininggate Approver Roles Item 1 detail
+        decision: approve
+    safeguards:
+      - Continuallearninggovernance Safeguards Item 1 detail
+    rollback_strategy: Continuallearninggovernance Rollback Strategy detail
+  model_fallback_strategies:
+    -
+      name: Modelfallbackstrategy Name detail
+      primary_model: Modelfallbackstrategy Primary Model detail
+      fallback_models:
+        - Modelfallbackstrategy Fallback Models Item 1 detail
+      activation_mode: automatic
+      selection_criteria:
+        - Modelfallbackstrategy Selection Criteria Item 1 detail
+      conditions:
+        -
+          expression: Guardcondition Expression detail
+          action: allow
+  deployment:
+    -
+      name: "standard-path-rollout"
+      classification: production
+      regions:
+        - "us-east-1"
+        - "eu-west-1"
+      controls:
+        - Feature flag governance profile
+        - Telemetry health checks
+      change_management: "CAB approval with staged canary (10% \u2192 50% \u2192 100%)."
+      credential_rotation:
+        cadence: Quarterly
+        method: AWS Secrets Manager rotation
+        owner: Platform SRE
+        evidence_uri: "https://vault.example.com/audits/rotation"
+      multi_tenant_isolation:
+        tenancy_model: shared
+        isolation_controls:
+          - "Per-tenant namespaces"
+          - IAM boundaries
+        validation_frequency: Monthly
+        evidence_artifacts:
+          - "https://wiki.example.com/standard-path/isolation-audit"
+        responsible_team: Security Engineering
+        break_glass_procedure: "Escalate to Security on-call; disable ingest role."
+  multi_region_disaster_recovery_manifest:
+    regions:
+      - Multiregiondisasterrecoverymanifest Regions Item 1 detail
+      - Multiregiondisasterrecoverymanifest Regions Item 2 detail
+    orchestration_playbook:
+      name: Disasterrecoveryplaybook Name detail
+      command_center_roles:
+        - Disasterrecoveryplaybook Command Center Roles Item 1 detail
+      phases:
+        -
+          name: Disasterrecoveryplaybook Phases Item 1 Name detail
+          objectives:
+            - Disasterrecoveryplaybook Phases Item 1 Objectives Item 1 detail
+    failover_sequence:
+      -
+        order: 0
+        action: Failoverstep Action detail
+        responsible_roles:
+          - Failoverstep Responsible Roles Item 1 detail
+        expected_duration_minutes: 0
+        success_criteria: Failoverstep Success Criteria detail
+    communication_plan:
+      - Multiregiondisasterrecoverymanifest Communication Plan Item 1 detail
+    recovery_time_objective_minutes: 1
+    recovery_point_objective_minutes: 1
+    testing_schedule:
+      frequency: Drtestschedule Frequency detail
+      last_test: "2024-01-01T00:00:00Z"
+      next_test: "2024-01-01T00:00:00Z"
+      scenarios:
+        - Drtestschedule Scenarios Item 1 detail
+    reentry_criteria:
+      - Multiregiondisasterrecoverymanifest Reentry Criteria Item 1 detail
+  waivers:
+    -
+      control_id: Waiverrecord Control Id detail
+      justification: Waiverrecord Justification detail
+      approved_by:
+        - Waiverrecord Approved By Item 1 detail
+      status: pending
+      expires_at: "2024-01-01T00:00:00Z"
+  compliance_programs:
+    -
+      framework: Complianceprogram Framework detail
+      version: Complianceprogram Version detail
+      controls:
+        -
+          framework: Compliancecontrol Framework detail
+          control_id: Compliancecontrol Control Id detail
+          status: planned
+          evidence_uri: Compliancecontrol Evidence Uri detail
+          last_audited: "2024-01-01T00:00:00Z"
+          risk_scoring:
+            methodology: Controlriskscoring Methodology detail
+            scale:
+              min: 1.0
+              max: 1.0
+              unit: Controlriskscoring Scale Unit detail
+            overall_score: 0.0
+            factors:
+              -
+                name: Controlriskfactor Name detail
+                weight: 0.0
+                score: 0.0
+          evidence_proofs:
+            -
+              id: Complianceevidenceproof Id detail
+              control_id: Complianceevidenceproof Control Id detail
+              proof_type: hash
+              artifact_uri: "https://example.com/complianceevidenceproof-artifact-uri"
+              hash:
+                algorithm: Artifacthash Algorithm detail
+                value: Artifacthash Value detail
+              issued_at: "2024-01-01T00:00:00Z"
+              issuer: Complianceevidenceproof Issuer detail
+              verification_method: Complianceevidenceproof Verification Method detail
+      owner: Complianceprogram Owner detail
+      next_audit: "2024-01-01T00:00:00Z"
+      jurisdictions:
+        -
+          region: Jurisdictionprofile Region detail
+          regulations:
+            - Jurisdictionprofile Regulations Item 1 detail
+          data_residency: Jurisdictionprofile Data Residency detail
+          requirements:
+            - Jurisdictionprofile Requirements Item 1 detail
+  persistence_policy:
+    base_directory: tmp
+    relative_to: cwd
+    extension: .save
+    conflict_strategy: append_timestamp
+    naming_template:
+      format: Persistencenamingtemplate Format detail
+      components:
+        - phase
+    emit_manifest: true
+  persistence_manifest:
+    -
+      phase: Persistencemanifestentry Phase detail
+      output: Persistencemanifestentry Output detail
+      path: Persistencemanifestentry Path detail
+      checksum: Persistencemanifestentry Checksum detail
+      checksum_algorithm: sha256
+      created_at: "2024-01-01T00:00:00Z"
+      retention_class: ephemeral
+      encryption:
+        status: encrypted_at_rest
+        algorithm: Persistenceencryption Algorithm detail
+  toolchain_manifest:
+    name: Toolchainmanifest Name detail
+    locked_at: "2024-01-01T00:00:00Z"
+    components:
+      -
+        name: Toolchaincomponent Name detail
+        version: Toolchaincomponent Version detail
+        role: compiler
+  release_packaging_manifest:
+    manifest_version: v1.0.0
+    release_id: Releasepackagingmanifest Release Id detail
+    components:
+      -
+        name: Releasemanifestcomponent Name detail
+        type: schema
+        uri: Releasemanifestcomponent Uri detail
+        checksum: Releasemanifestcomponent Checksum detail
+        checksum_algorithm: sha256
+        distribution_channel: Releasemanifestcomponent Distribution Channel detail
+    signing:
+      required: true
+    distribution_plan: Releasepackagingmanifest Distribution Plan detail
+    prepared_at: "2024-01-01T00:00:00Z"
+    reproducibility_evidence:
+      run_identifiers:
+        - Reproducibilityevidencepackage Run Identifiers Item 1 detail
+      execution_context:
+        platform: Reproducibilityevidencepackage Execution Context Platform detail
+        toolchain_versions:
+          -
+            name: Reproducibilityevidencepackage Execution Context Toolchain Versions Item 1 Name detail
+            version: Reproducibilityevidencepackage Execution Context Toolchain Versions Item 1 Version detail
+      random_seed_records:
+        -
+          phase: Reproducibilityevidencepackage Random Seed Records Item 1 Phase detail
+          seed: 1
+  audit_event_signatures:
+    -
+      event_id: Auditeventsignature Event Id detail
+      hash_algorithm: sha256
+      hash_value: Auditeventsignature Hash Value detail
+      signature_algorithm: "rsa-pss-sha256"
+      signature_value: Auditeventsignature Signature Value detail
+      public_key_reference: Auditeventsignature Public Key Reference detail
+      issued_at: "2024-01-01T00:00:00Z"
+      signing_authority: Auditeventsignature Signing Authority detail
+      evidence_scope: Auditeventsignature Evidence Scope detail
+  fairness_drift_root_cause_reports:
+    -
+      id: Fairnessdriftrootcausereport Id detail
+      detected_at: "2024-01-01T00:00:00Z"
+      drift_signal: Fairnessdriftrootcausereport Drift Signal detail
+      analysis_summary: Fairnessdriftrootcausereport Analysis Summary detail
+      suspected_causes:
+        - Fairnessdriftrootcausereport Suspected Causes Item 1 detail
+      confidence_level: low
+      recommended_actions:
+        -
+          description: Fairnessdriftrootcausereport Recommended Actions Item 1 Description detail
+          owner: Fairnessdriftrootcausereport Recommended Actions Item 1 Owner detail
+          due_date: "2024-01-01"
+          status: planned
+      owner: Fairnessdriftrootcausereport Owner detail
+  configuration_drift_manifests:
+    -
+      baseline_environment: Configurationdriftmanifest Baseline Environment detail
+      target_environment: Configurationdriftmanifest Target Environment detail
+      generated_at: "2024-01-01T00:00:00Z"
+      drift_items:
+        -
+          path: Configurationdriftitem Path detail
+          category: parameter
+          baseline_value: Configurationdriftitem Baseline Value detail
+          target_value: Configurationdriftitem Target Value detail
+          severity: critical
+  prompt_injection_detection_profiles:
+    -
+      id: Promptinjectiondetectionprofile Id detail
+      heuristic_name: Promptinjectiondetectionprofile Heuristic Name detail
+      version: Promptinjectiondetectionprofile Version detail
+      parameters:
+        -
+          name: Promptinjectiondetectionprofile Parameters Item 1 Name detail
+          value: Promptinjectiondetectionprofile Parameters Item 1 Value detail
+          type: numeric
+      thresholds:
+        -
+          metric: Promptinjectiondetectionprofile Thresholds Item 1 Metric detail
+          operator: ">"
+          value: 1.0
+          action: block
+      evaluation_metrics:
+        -
+          name: Promptinjectiondetectionprofile Evaluation Metrics Item 1 Name detail
+          value: 1.0
+          sample_size: 1
+      last_reviewed: "2024-01-01T00:00:00Z"
+      owner: Promptinjectiondetectionprofile Owner detail
+  ethical_review_decision_log:
+    -
+      decision_id: Ethicalreviewdecisionlogentry Decision Id detail
+      submitted_at: "2024-01-01T00:00:00Z"
+      reviewed_at: "2024-01-01T00:00:00Z"
+      reviewers:
+        -
+          name: Ethicalreviewdecisionlogentry Reviewers Item 1 Name detail
+          role: Ethicalreviewdecisionlogentry Reviewers Item 1 Role detail
+      outcome: approved
+      rationale: Ethicalreviewdecisionlogentry Rationale detail
+      conditions:
+        - Ethicalreviewdecisionlogentry Conditions Item 1 detail
+      owner: Ethicalreviewdecisionlogentry Owner detail
+  localization_quality_metrics:
+    -
+      locale: Localizationqualitymetric Locale detail
+      metric_name: Localizationqualitymetric Metric Name detail
+      methodology: Localizationqualitymetric Methodology detail
+      target_threshold: Localizationqualitymetric Target Threshold detail
+      measurement_frequency: per_release
+      owner: Localizationqualitymetric Owner detail
+  compiler_optimization_hints:
+    -
+      name: Compileroptimizationhint Name detail
+      target: prompt_template
+      prompt_pattern: Compileroptimizationhint Prompt Pattern detail
+      rewrite_strategy: Compileroptimizationhint Rewrite Strategy detail
+      determinism_controls:
+        -
+          strategy: seed_locking
+          toolchain_stage: prompt_compilation
+          seed_management:
+            mode: static
+            scope: Compilerdeterminismcontrol Seed Management Scope detail
+          state_capture:
+            - Compilerdeterminismcontrol State Capture Item 1 detail
+          verification:
+            method: replay
+            frequency: Compilerdeterminismcontrol Verification Frequency detail
+  runtime_safety_nets:
+    -
+      name: Runtimesafetynet Name detail
+      sandbox_environment: Runtimesafetynet Sandbox Environment detail
+      trigger_conditions:
+        - Runtimesafetynet Trigger Conditions Item 1 detail
+      rollback_sequence:
+        -
+          step: 1
+          action: Runtimesafetynet Rollback Sequence Item 1 Action detail
+      validation_checks:
+        -
+          name: Runtimesafetynet Validation Checks Item 1 Name detail
+          metric: Runtimesafetynet Validation Checks Item 1 Metric detail
+          threshold: Runtimesafetynet Validation Checks Item 1 Threshold detail
+  phase_checkpoint_policies:
+    -
+      phase: Phasestatecheckpointpolicy Phase detail
+      checkpoint_name: Phasestatecheckpointpolicy Checkpoint Name detail
+      snapshot_cadence:
+        frequency: 1
+        unit: per_run
+      retention:
+        duration: 1
+        unit: hours
+      recovery_validation:
+        steps:
+          - Phasestatecheckpointpolicy Recovery Validation Steps Item 1 detail
+        success_criteria: Phasestatecheckpointpolicy Recovery Validation Success Criteria detail
+  observability_contract_versions:
+    -
+      observability_channel: Observabilitycontractversion Observability Channel detail
+      schema_version: v1.0.0
+      effective_from: "2024-01-01T00:00:00Z"
+      change_summary: Observabilitycontractversion Change Summary detail
+  llm_output_signature_policies:
+    -
+      name: Llmoutputsignaturepolicy Name detail
+      signature_algorithm: Llmoutputsignaturepolicy Signature Algorithm detail
+      key_reference: Llmoutputsignaturepolicy Key Reference detail
+      covered_outputs:
+        - Llmoutputsignaturepolicy Covered Outputs Item 1 detail
+      verification_process:
+        triggers:
+          - Llmoutputsignaturepolicy Verification Process Triggers Item 1 detail
+        steps:
+          -
+            order: 1
+            action: Llmoutputsignaturepolicy Verification Process Steps Item 1 Action detail
+  anomaly_budget_policies:
+    -
+      name: Anomalybudgetpolicy Name detail
+      scope: Anomalybudgetpolicy Scope detail
+      allowed_deviation:
+        metric: Anomalybudgetpolicy Allowed Deviation Metric detail
+        limit: 1.0
+      duration:
+        value: 1
+        unit: minutes
+      expiration_conditions:
+        - Anomalybudgetpolicy Expiration Conditions Item 1 detail
+  data_egress_controls:
+    -
+      channel: Dataegresscontrol Channel detail
+      sanitization_requirements:
+        - Dataegresscontrol Sanitization Requirements Item 1 detail
+      approval_workflow:
+        roles:
+          - Dataegresscontrol Approval Workflow Roles Item 1 detail
+        criteria: Dataegresscontrol Approval Workflow Criteria detail
+      audit_logging:
+        enabled: true
+  model_confidence_annotations:
+    -
+      phase: Modelconfidenceannotation Phase detail
+      confidence_metric: Modelconfidenceannotation Confidence Metric detail
+      thresholds:
+        -
+          label: Modelconfidenceannotation Thresholds Item 1 Label detail
+          min_value: 1.0
+          max_value: 1.0
+      propagation_rules:
+        - Modelconfidenceannotation Propagation Rules Item 1 detail
+  quantum_resilience_policies:
+    -
+      name: Quantumresiliencepolicy Name detail
+      threat_model: Quantumresiliencepolicy Threat Model detail
+      mitigation_strategies:
+        - Quantumresiliencepolicy Mitigation Strategies Item 1 detail
+      validation_status: planned
+      review_cadence: Quantumresiliencepolicy Review Cadence detail
+  responsible_ai_commitments:
+    -
+      framework: Responsibleaicommitment Framework detail
+      obligations:
+        -
+          description: Responsibleaicommitment Obligations Item 1 Description detail
+      legal_reference: Responsibleaicommitment Legal Reference detail
+      effective_date: "2024-01-01"
+      owner: Responsibleaicommitment Owner detail
+  user_persona_access_profiles:
+    -
+      persona: Userpersonaaccessprofile Persona detail
+      description: Userpersonaaccessprofile Description detail
+      guardrail_overrides:
+        -
+          guardrail: Userpersonaaccessprofile Guardrail Overrides Item 1 Guardrail detail
+          action: tighten
+      allowed_tools:
+        - Userpersonaaccessprofile Allowed Tools Item 1 detail
+      restricted_data_classes:
+        - Userpersonaaccessprofile Restricted Data Classes Item 1 detail
+  phased_rollout_experiments:
+    -
+      name: Phasedrolloutexperiment Name detail
+      cohort_strategy: Phasedrolloutexperiment Cohort Strategy detail
+      exposure_schedule:
+        -
+          phase_label: Phasedrolloutexperiment Exposure Schedule Item 1 Phase Label detail
+          traffic_percentage: 0.0
+          duration: Phasedrolloutexperiment Exposure Schedule Item 1 Duration detail
+      monitoring_metrics:
+        - Phasedrolloutexperiment Monitoring Metrics Item 1 detail
+      exit_criteria:
+        - Phasedrolloutexperiment Exit Criteria Item 1 detail
+  incident_metrics:
+    -
+      name: Incidentmetricdefinition Name detail
+      description: Incidentmetricdefinition Description detail
+      severity_scale:
+        levels:
+          -
+            label: Incidentmetricdefinition Severity Scale Levels Item 1 Label detail
+            score_range: Incidentmetricdefinition Severity Scale Levels Item 1 Score Range detail
+      duration_buckets:
+        -
+          label: Incidentmetricdefinition Duration Buckets Item 1 Label detail
+          min_minutes: 0.0
+          max_minutes: 0.0
+      impact_dimensions:
+        -
+          dimension: Incidentmetricdefinition Impact Dimensions Item 1 Dimension detail
+          scoring_guidance: Incidentmetricdefinition Impact Dimensions Item 1 Scoring Guidance detail
+  third_party_audit_attestations:
+    -
+      auditor: Thirdpartyauditattestation Auditor detail
+      scope: Thirdpartyauditattestation Scope detail
+      issued_at: "2024-01-01T00:00:00Z"
+      findings:
+        -
+          id: Thirdpartyauditattestation Findings Item 1 Id detail
+          description: Thirdpartyauditattestation Findings Item 1 Description detail
+          severity: low
+          status: open
+      remediation_deadline: "2024-01-01"
+  multi_agent_coordination_contracts:
+    -
+      name: Multiagentcoordinationcontract Name detail
+      agents:
+        -
+          id: Multiagentcoordinationcontract Agents Item 1 Id detail
+          role: Multiagentcoordinationcontract Agents Item 1 Role detail
+          llm_profile: Multiagentcoordinationcontract Agents Item 1 Llm Profile detail
+          capabilities:
+            - Multiagentcoordinationcontract Agents Item 1 Capabilities Item 1 detail
+        -
+          id: Multiagentcoordinationcontract Agents Item 2 Id detail
+          role: Multiagentcoordinationcontract Agents Item 2 Role detail
+          llm_profile: Multiagentcoordinationcontract Agents Item 2 Llm Profile detail
+          capabilities:
+            - Multiagentcoordinationcontract Agents Item 2 Capabilities Item 1 detail
+      coordination_protocol:
+        mode: sequential
+        handshake: Multiagentcoordinationcontract Coordination Protocol Handshake detail
+        message_schema:
+        synchronization: Multiagentcoordinationcontract Coordination Protocol Synchronization detail
+      arbitration:
+        decision_policy: Multiagentcoordinationcontract Arbitration Decision Policy detail
+        tie_breaker: Multiagentcoordinationcontract Arbitration Tie Breaker detail
+        escalation_path: Multiagentcoordinationcontract Arbitration Escalation Path detail
+        rules:
+          -
+            priority: 1
+            criteria: Multiagentcoordinationcontract Arbitration Rules Item 1 Criteria detail
+            decision_owner: Multiagentcoordinationcontract Arbitration Rules Item 1 Decision Owner detail
+      shared_state:
+        schema:
+        consistency_model: strong
+        persistence: Multiagentcoordinationcontract Shared State Persistence detail
+      telemetry:
+        metrics:
+          - Multiagentcoordinationcontract Telemetry Metrics Item 1 detail
+        logs:
+          - Multiagentcoordinationcontract Telemetry Logs Item 1 detail
+        alerts:
+          - Multiagentcoordinationcontract Telemetry Alerts Item 1 detail
+      guardrail_alignment:
+        - Multiagentcoordinationcontract Guardrail Alignment Item 1 detail
+      handoff_matrix:
+        -
+          from_agent: Multiagentcoordinationcontract Handoff Matrix Item 1 From Agent detail
+          to_agent: Multiagentcoordinationcontract Handoff Matrix Item 1 To Agent detail
+          condition: Multiagentcoordinationcontract Handoff Matrix Item 1 Condition detail
+  multi_model_consensus_policies:
+    -
+      policy_id: Multimodelconsensuspolicy Policy Id detail
+      applicable_phases:
+        - Multimodelconsensuspolicy Applicable Phases Item 1 detail
+      consensus_strategy: majority
+      consensus_threshold: 0.0
+      model_weights:
+        -
+          model_id: Multimodelconsensuspolicy Model Weights Item 1 Model Id detail
+          weight: 0.0
+      latency_budget_ms: 0
+  latency_budget_policies:
+    -
+      name: Latencybudgetpolicy Name detail
+      target_latency_ms: 0.0
+      observation_window: Latencybudgetpolicy Observation Window detail
+      phase_bindings:
+        -
+          phase: Latencybudgetpolicy Phase Bindings Item 1 Phase detail
+          slo_target_ms: 0.0
+          measurement_strategy: Latencybudgetpolicy Phase Bindings Item 1 Measurement Strategy detail
+          enforcement_actions:
+            - Latencybudgetpolicy Phase Bindings Item 1 Enforcement Actions Item 1 detail
+      guardrail_links:
+        - Latencybudgetpolicy Guardrail Links Item 1 detail
+      owner: Latencybudgetpolicy Owner detail
+  interactive_debug_trace_specs:
+    -
+      name: Interactivedebugtracespec Name detail
+      phase: Interactivedebugtracespec Phase detail
+      triggers:
+        -
+          type: manual
+          expression: Interactivedebugtracespec Triggers Item 1 Expression detail
+      step_schema:
+      storage:
+        location: "https://example.com/interactivedebugtracespec-storage-location"
+        retention_days: 1
+        access_controls:
+          - Interactivedebugtracespec Storage Access Controls Item 1 detail
+      replay:
+        instructions: Interactivedebugtracespec Replay Instructions detail
+        tooling: Interactivedebugtracespec Replay Tooling detail
+  automated_spec_linting_rules:
+    -
+      name: Automatedspeclintingrule Name detail
+      target: meta
+      rule_type: structural
+      severity: info
+      logic:
+        engine: jsonpath
+        expression: Automatedspeclintingrule Logic Expression detail
+      failure_actions:
+        - Automatedspeclintingrule Failure Actions Item 1 detail
+  compliance_evidence_ledger:
+    -
+      id: Complianceevidenceproof Id detail
+      control_id: Complianceevidenceproof Control Id detail
+      proof_type: hash
+      artifact_uri: "https://example.com/complianceevidenceproof-artifact-uri"
+      hash:
+        algorithm: Artifacthash Algorithm detail
+        value: Artifacthash Value detail
+      issued_at: "2024-01-01T00:00:00Z"
+      issuer: Complianceevidenceproof Issuer detail
+      verification_method: Complianceevidenceproof Verification Method detail
+  blue_team_exercise_schedules:
+    -
+      name: Blueteamexerciseschedule Name detail
+      scope: Blueteamexerciseschedule Scope detail
+      frequency: Blueteamexerciseschedule Frequency detail
+      objectives:
+        - Blueteamexerciseschedule Objectives Item 1 detail
+      lead: Blueteamexerciseschedule Lead detail
+      participants:
+        - Blueteamexerciseschedule Participants Item 1 detail
+      last_executed: "2024-01-01T00:00:00Z"
+      next_scheduled: "2024-01-01T00:00:00Z"
+  roll_forward_recovery_plans:
+    -
+      name: Rollforwardrecoveryplan Name detail
+      scope: Rollforwardrecoveryplan Scope detail
+      trigger_conditions:
+        - Rollforwardrecoveryplan Trigger Conditions Item 1 detail
+      execution_steps:
+        - Rollforwardrecoveryplan Execution Steps Item 1 detail
+      validation_status: planned
+      owner: Rollforwardrecoveryplan Owner detail
+  knowledge_retention_windows:
+    -
+      component: Knowledgeretentionwindow Component detail
+      retention_period: Knowledgeretentionwindow Retention Period detail
+      purge_policy: Knowledgeretentionwindow Purge Policy detail
+      owner: Knowledgeretentionwindow Owner detail
+      review_cycle: Knowledgeretentionwindow Review Cycle detail
+  audit_readiness_dashboards:
+    -
+      name: Auditreadinessdashboard Name detail
+      scope: Auditreadinessdashboard Scope detail
+      metrics:
+        - Auditreadinessdashboard Metrics Item 1 detail
+      data_sources:
+        - Auditreadinessdashboard Data Sources Item 1 detail
+      update_frequency: Auditreadinessdashboard Update Frequency detail
+      owner: Auditreadinessdashboard Owner detail
+      status: draft
+  adversarial_benchmark_registry:
+    -
+      name: Adversarialbenchmarkregistryentry Name detail
+      threat_focus:
+        - Adversarialbenchmarkregistryentry Threat Focus Item 1 detail
+      dataset_reference: Adversarialbenchmarkregistryentry Dataset Reference detail
+      evaluation_frequency: Adversarialbenchmarkregistryentry Evaluation Frequency detail
+      owner: Adversarialbenchmarkregistryentry Owner detail
+      status: planned
+  model_card_generation_workflows:
+    -
+      name: Modelcardgenerationworkflow Name detail
+      version: v1.0.0
+      triggers:
+        - Modelcardgenerationworkflow Triggers Item 1 detail
+      inputs:
+        - Modelcardgenerationworkflow Inputs Item 1 detail
+      outputs:
+        - Modelcardgenerationworkflow Outputs Item 1 detail
+      frequency: Modelcardgenerationworkflow Frequency detail
+      owner: Modelcardgenerationworkflow Owner detail
+      approval_roles:
+        - Modelcardgenerationworkflow Approval Roles Item 1 detail
+  compiler_pipeline_signatures:
+    -
+      name: Compilerpipelinesignature Name detail
+      pipeline_version: v1.0.0
+      passes:
+        -
+          order: 0
+          id: Compilerpipelinesignature Passes Item 1 Id detail
+          checksum: Compilerpipelinesignature Passes Item 1 Checksum detail
+          toolchain_component: Compilerpipelinesignature Passes Item 1 Toolchain Component detail
+      signing_authority: Compilerpipelinesignature Signing Authority detail
+      hash_algorithm: Compilerpipelinesignature Hash Algorithm detail
+      signature: Compilerpipelinesignature Signature detail
+      signed_at: "2024-01-01T00:00:00Z"
+  phase_version_compatibility_matrix:
+    -
+      phase: Phaseversioncompatibilitymatrix Phase detail
+      baseline_version: v1.0.0
+      compatibility_entries:
+        -
+          counterpart_phase: Phaseversioncompatibilitymatrix Compatibility Entries Item 1 Counterpart Phase detail
+          supported_versions:
+            - v1.0.0
+          compatibility_level: full
+  llm_memory_hygiene_policies:
+    -
+      name: Llmmemoryhygienepolicy Name detail
+      scope: Llmmemoryhygienepolicy Scope detail
+      retention_limit: Llmmemoryhygienepolicy Retention Limit detail
+      purge_triggers:
+        - Llmmemoryhygienepolicy Purge Triggers Item 1 detail
+      sanitization_routines:
+        - Llmmemoryhygienepolicy Sanitization Routines Item 1 detail
+      verification:
+        method: Llmmemoryhygienepolicy Verification Method detail
+        cadence: Llmmemoryhygienepolicy Verification Cadence detail
+      owner: Llmmemoryhygienepolicy Owner detail
+  runtime_contract_tests:
+    -
+      name: Runtimecontracttest Name detail
+      phase: Runtimecontracttest Phase detail
+      scenario: Runtimecontracttest Scenario detail
+      assertions:
+        -
+          type: Runtimecontracttest Assertions Item 1 Type detail
+          expected: Runtimecontracttest Assertions Item 1 Expected detail
+      expected_outcome: Runtimecontracttest Expected Outcome detail
+      failure_actions:
+        - Runtimecontracttest Failure Actions Item 1 detail
+      owner: Runtimecontracttest Owner detail
+  deterministic_resource_profiles:
+    -
+      phase: Deterministicresourceprofile Phase detail
+      resource_bounds:
+        cpu_cores: 0.0
+        memory_mb: 0.0
+      execution_timeout_seconds: 0.0
+      enforcement_mode: hard
+      profiling_method: Deterministicresourceprofile Profiling Method detail
+  capability_revocation_playbooks:
+    -
+      name: Capabilityrevocationplaybook Name detail
+      scope: Capabilityrevocationplaybook Scope detail
+      triggers:
+        - Capabilityrevocationplaybook Triggers Item 1 detail
+      steps:
+        -
+          order: 1
+          action: Capabilityrevocationplaybook Steps Item 1 Action detail
+          responsible_role: Capabilityrevocationplaybook Steps Item 1 Responsible Role detail
+      validation:
+        criteria: Capabilityrevocationplaybook Validation Criteria detail
+        method: Capabilityrevocationplaybook Validation Method detail
+      owner: Capabilityrevocationplaybook Owner detail
+  regulatory_reporting_schedule:
+    jurisdiction: Regulatoryreportingschedule Jurisdiction detail
+    regulator: Regulatoryreportingschedule Regulator detail
+    filing_deadline: "2024-01-01"
+    reporting_frequency: Regulatoryreportingschedule Reporting Frequency detail
+    responsible_role: Regulatoryreportingschedule Responsible Role detail
+    submission_channel: Regulatoryreportingschedule Submission Channel detail
+  ai_incident_shared_learning_registry:
+    -
+      incident_id: Aiincidentsharedlearningrecord Incident Id detail
+      occurrence_date: "2024-01-01T00:00:00Z"
+      summary: Aiincidentsharedlearningrecord Summary detail
+      root_cause: Aiincidentsharedlearningrecord Root Cause detail
+      mitigation_assets:
+        - Aiincidentsharedlearningrecord Mitigation Assets Item 1 detail
+      updated_at: "2024-01-01T00:00:00Z"
+  automated_guardrail_regression_suites:
+    -
+      name: Automatedguardrailregressionsuite Name detail
+      baseline_metrics:
+        -
+          metric: Automatedguardrailregressionsuite Baseline Metrics Item 1 Metric detail
+          baseline_value: 1.0
+          unit: Automatedguardrailregressionsuite Baseline Metrics Item 1 Unit detail
+      tolerance:
+        lower_bound: 1.0
+        upper_bound: 1.0
+      alert_channels:
+        - Automatedguardrailregressionsuite Alert Channels Item 1 detail
+      schedule: Automatedguardrailregressionsuite Schedule detail
+      owner: Automatedguardrailregressionsuite Owner detail
+  privacy_review_checklists:
+    -
+      checklist_id: Privacyreviewchecklist Checklist Id detail
+      scope: Privacyreviewchecklist Scope detail
+      reviewers:
+        - Privacyreviewchecklist Reviewers Item 1 detail
+      items:
+        -
+          item: Privacyreviewchecklist Items Item 1 Item detail
+          status: pending
+      sign_off_status: Privacyreviewchecklist Sign Off Status detail
+      last_reviewed: "2024-01-01T00:00:00Z"
+  model_release_gate_thresholds:
+    -
+      gate_name: Modelreleasegatethreshold Gate Name detail
+      metric: Modelreleasegatethreshold Metric detail
+      threshold_value: 1.0
+      comparison_operator: ">="
+      evaluation_source: Modelreleasegatethreshold Evaluation Source detail
+      approver_roles:
+        - Modelreleasegatethreshold Approver Roles Item 1 detail
+      fallback_action: Modelreleasegatethreshold Fallback Action detail
+  data_subject_access_request_workflows:
+    -
+      workflow_id: Datasubjectaccessrequestworkflow Workflow Id detail
+      jurisdiction: Datasubjectaccessrequestworkflow Jurisdiction detail
+      sla_days: 1
+      steps:
+        -
+          order: 1
+          description: Datasubjectaccessrequestworkflow Steps Item 1 Description detail
+          responsible_role: Datasubjectaccessrequestworkflow Steps Item 1 Responsible Role detail
+      evidence_requirements:
+        - Datasubjectaccessrequestworkflow Evidence Requirements Item 1 detail
+      contact_channels:
+        - Datasubjectaccessrequestworkflow Contact Channels Item 1 detail
+      owner: Datasubjectaccessrequestworkflow Owner detail
+  data_subject_request_handling_workflows:
+    -
+      workflow_id: Datasubjectrequesthandlingworkflow Workflow Id detail
+      request_types:
+        - Datasubjectrequesthandlingworkflow Request Types Item 1 detail
+      sla_hours: 1
+      automation_level: manual
+      steps:
+        -
+          sequence: 1
+          name: Datasubjectrequesthandlingworkflow Steps Item 1 Name detail
+  continuous_threat_models:
+    -
+      model_id: Continuousthreatmodel Model Id detail
+      scope: Continuousthreatmodel Scope detail
+      mitre_tactics:
+        - Continuousthreatmodel Mitre Tactics Item 1 detail
+      update_cadence_days: 1
+      responsible_role: Continuousthreatmodel Responsible Role detail
+      last_reviewed: "2024-01-01T00:00:00Z"
+  runtime_secret_leak_detection_policies:
+    -
+      policy_id: Runtimesecretleakdetectionpolicy Policy Id detail
+      phase_scope:
+        - Runtimesecretleakdetectionpolicy Phase Scope Item 1 detail
+      detection_methods:
+        - Runtimesecretleakdetectionpolicy Detection Methods Item 1 detail
+      instrumentation:
+        - Runtimesecretleakdetectionpolicy Instrumentation Item 1 detail
+      monitoring_interval_minutes: 1
+      response_plan:
+        - Runtimesecretleakdetectionpolicy Response Plan Item 1 detail
+  dependency_risk_matrices:
+    -
+      matrix_id: Dependencyriskmatrix Matrix Id detail
+      scope: Dependencyriskmatrix Scope detail
+      entries:
+        -
+          dependency_name: Dependencyriskmatrix Entries Item 1 Dependency Name detail
+          dependency_type: Dependencyriskmatrix Entries Item 1 Dependency Type detail
+          criticality: Dependencyriskmatrix Entries Item 1 Criticality detail
+          failure_modes:
+            - Dependencyriskmatrix Entries Item 1 Failure Modes Item 1 detail
+          contingency_actions:
+            - Dependencyriskmatrix Entries Item 1 Contingency Actions Item 1 detail
+          owner: Dependencyriskmatrix Entries Item 1 Owner detail
+      last_updated: "2024-01-01T00:00:00Z"
+  risk_propagation_mappings:
+    -
+      mapping_id: Riskpropagationmapping Mapping Id detail
+      source_phase: Riskpropagationmapping Source Phase detail
+      source_output: Riskpropagationmapping Source Output detail
+      downstream_impacts:
+        -
+          phase: Riskpropagationmapping Downstream Impacts Item 1 Phase detail
+          port: Riskpropagationmapping Downstream Impacts Item 1 Port detail
+          impact_category: Riskpropagationmapping Downstream Impacts Item 1 Impact Category detail
+          severity: low
+          response_playbooks:
+            - Riskpropagationmapping Downstream Impacts Item 1 Response Playbooks Item 1 detail
+      mitigations:
+        - Riskpropagationmapping Mitigations Item 1 detail
+      last_reviewed: "2024-01-01T00:00:00Z"
+  ethical_review_committee_minutes:
+    -
+      meeting_id: Ethicalreviewcommitteeminutesentry Meeting Id detail
+      date: "2024-01-01T00:00:00Z"
+      secretary: Ethicalreviewcommitteeminutesentry Secretary detail
+      attendees:
+        - Ethicalreviewcommitteeminutesentry Attendees Item 1 detail
+      decisions:
+        -
+          topic: Ethicalreviewcommitteeminutesentry Decisions Item 1 Topic detail
+          decision: Ethicalreviewcommitteeminutesentry Decisions Item 1 Decision detail
+          follow_up_owner: Ethicalreviewcommitteeminutesentry Decisions Item 1 Follow Up Owner detail
+  llm_cognitive_load_limits:
+    -
+      phase: Llmcognitiveloadlimit Phase detail
+      max_turns: 1
+      max_tokens: 1
+      rationale: Llmcognitiveloadlimit Rationale detail
+  localization_risk_assessments:
+    -
+      assessment_id: Localizationriskassessment Assessment Id detail
+      jurisdiction: Localizationriskassessment Jurisdiction detail
+      risk_rating: Localizationriskassessment Risk Rating detail
+      identified_issues:
+        - Localizationriskassessment Identified Issues Item 1 detail
+      mitigation_plan:
+        - Localizationriskassessment Mitigation Plan Item 1 detail
+      approver: Localizationriskassessment Approver detail
+      review_date: "2024-01-01T00:00:00Z"
+  llm_runtime_resilience_drills:
+    -
+      drill_id: Llmruntimeresiliencedrill Drill Id detail
+      scenario: Llmruntimeresiliencedrill Scenario detail
+      cadence_days: 1
+      participating_roles:
+        - Llmruntimeresiliencedrill Participating Roles Item 1 detail
+      target_objectives:
+        - Llmruntimeresiliencedrill Target Objectives Item 1 detail
+      last_executed: "2024-01-01T00:00:00Z"
+  data_sharing_consent_ledgers:
+    -
+      entry_id: Datasharingconsentledgerentry Entry Id detail
+      artifact_reference: Datasharingconsentledgerentry Artifact Reference detail
+      consent_scope: Datasharingconsentledgerentry Consent Scope detail
+      legal_basis: Datasharingconsentledgerentry Legal Basis detail
+      status: granted
+      capture_timestamp: "2024-01-01T00:00:00Z"
+  automated_bias_impact_reports:
+    -
+      report_id: Automatedbiasimpactreport Report Id detail
+      generated_at: "2024-01-01T00:00:00Z"
+      monitoring_window:
+        start: "2024-01-01T00:00:00Z"
+        end: "2024-01-01T00:00:00Z"
+      mitigation_actions:
+        - Automatedbiasimpactreport Mitigation Actions Item 1 detail
+      residual_bias_score: 0.0
+      status: in_control
+  machine_auditability_requirements:
+    -
+      requirement_id: Machineauditabilityrequirement Requirement Id detail
+      control_reference: Machineauditabilityrequirement Control Reference detail
+      evidence_type: Machineauditabilityrequirement Evidence Type detail
+      collection_frequency: Machineauditabilityrequirement Collection Frequency detail
+      verification_steps:
+        - Machineauditabilityrequirement Verification Steps Item 1 detail
+      responsible_role: Machineauditabilityrequirement Responsible Role detail
+  llm_safety_signal_registry:
+    -
+      signal_id: Llmsafetysignalrecord Signal Id detail
+      sensor_type: Llmsafetysignalrecord Sensor Type detail
+      source: Llmsafetysignalrecord Source detail
+      monitored_phase: Llmsafetysignalrecord Monitored Phase detail
+      severity_threshold: Llmsafetysignalrecord Severity Threshold detail
+      response_action: Llmsafetysignalrecord Response Action detail
+  llm_safety_case_documentation:
+    -
+      document_id: Llmsafetycasedocumentation Document Id detail
+      version: v1.0.0
+      title: Llmsafetycasedocumentation Title detail
+      hazard_analysis:
+        -
+          hazard_id: Llmsafetycasedocumentation Hazard Analysis Item 1 Hazard Id detail
+          description: Llmsafetycasedocumentation Hazard Analysis Item 1 Description detail
+      control_claims:
+        -
+          claim_id: Llmsafetycasedocumentation Control Claims Item 1 Claim Id detail
+          statement: Llmsafetycasedocumentation Control Claims Item 1 Statement detail
+      assurance_evidence:
+        - Llmsafetycasedocumentation Assurance Evidence Item 1 detail
+      approval_panel:
+        - Llmsafetycasedocumentation Approval Panel Item 1 detail
+      status: draft
+  toolchain_emergency_patch_workflows:
+    -
+      workflow_id: Toolchainemergencypatchworkflow Workflow Id detail
+      trigger_conditions:
+        - Toolchainemergencypatchworkflow Trigger Conditions Item 1 detail
+      approval_roles:
+        - Toolchainemergencypatchworkflow Approval Roles Item 1 detail
+      max_deployment_window_minutes: 1
+      validation_steps:
+        - Toolchainemergencypatchworkflow Validation Steps Item 1 detail
+      post_patch_review_window_hours: 1
+  governance_exception_requests:
+    -
+      request_id: Governanceexceptionrequest Request Id detail
+      requested_by: Governanceexceptionrequest Requested By detail
+      submitted_at: "2024-01-01T00:00:00Z"
+      control_reference: Governanceexceptionrequest Control Reference detail
+      scope: Governanceexceptionrequest Scope detail
+      justification: Governanceexceptionrequest Justification detail
+      approval_status: pending
+  llm_token_leakage_monitoring_signals:
+    -
+      signal_id: Llmtokenleakagemonitoringsignal Signal Id detail
+      channel: prompt
+      detection_method: Llmtokenleakagemonitoringsignal Detection Method detail
+      trigger_threshold: Llmtokenleakagemonitoringsignal Trigger Threshold detail
+      response_action: Llmtokenleakagemonitoringsignal Response Action detail
+      last_reviewed: "2024-01-01T00:00:00Z"
+      status: active
+  control_dependency_graphs:
+    -
+      graph_id: Controldependencygraph Graph Id detail
+      scope: Controldependencygraph Scope detail
+      nodes:
+        -
+          id: Controldependencygraph Nodes Item 1 Id detail
+          type: control
+          label: Controldependencygraph Nodes Item 1 Label detail
+      edges:
+        -
+          source: Controldependencygraph Edges Item 1 Source detail
+          target: Controldependencygraph Edges Item 1 Target detail
+          relationship: Controldependencygraph Edges Item 1 Relationship detail
+      last_updated: "2024-01-01T00:00:00Z"
+  regulator_notification_protocols:
+    -
+      protocol_id: Regulatornotificationprotocol Protocol Id detail
+      regulator: Regulatornotificationprotocol Regulator detail
+      notification_triggers:
+        - Regulatornotificationprotocol Notification Triggers Item 1 detail
+      communication_channels:
+        - Regulatornotificationprotocol Communication Channels Item 1 detail
+      notification_timeline_hours: 1
+      escalation_contacts:
+        -
+          role: Regulatornotificationprotocol Escalation Contacts Item 1 Role detail
+          contact: Regulatornotificationprotocol Escalation Contacts Item 1 Contact detail
+      status: draft
+  zero_day_response_protocols:
+    -
+      protocol_id: Zerodayresponseprotocol Protocol Id detail
+      owner: Zerodayresponseprotocol Owner detail
+      activation_criteria:
+        - Zerodayresponseprotocol Activation Criteria Item 1 detail
+      containment_steps:
+        - Zerodayresponseprotocol Containment Steps Item 1 detail
+      communication_plan:
+        - Zerodayresponseprotocol Communication Plan Item 1 detail
+      last_tested: "2024-01-01T00:00:00Z"
+      status: draft
+  llm_outcome_assurance_contracts:
+    -
+      contract_id: Llmoutcomeassurancecontract Contract Id detail
+      stakeholders:
+        - Llmoutcomeassurancecontract Stakeholders Item 1 detail
+      commitments:
+        -
+          metric: Llmoutcomeassurancecontract Commitments Item 1 Metric detail
+          target: Llmoutcomeassurancecontract Commitments Item 1 Target detail
+          measurement_window: Llmoutcomeassurancecontract Commitments Item 1 Measurement Window detail
+      validation_process: Llmoutcomeassurancecontract Validation Process detail
+      renewal_cadence_days: 1
+      status: draft
+  stateful_tool_contracts:
+    -
+      contract_id: Statefultoolcontract Contract Id detail
+      tool_name: Statefultoolcontract Tool Name detail
+      state_assets:
+        -
+          name: Statefultoolcontract State Assets Item 1 Name detail
+          persistence_strategy: append
+          retention_days: 0
+          encryption: Statefultoolcontract State Assets Item 1 Encryption detail
+      resource_bounds:
+        storage_quota_mb: 1
+        max_records: 1
+        io_rate_limit_per_minute: 1
+        monitoring_interval_minutes: 1
+      approvals:
+        -
+          role: Statefultoolcontract Approvals Item 1 Role detail
+          name: Statefultoolcontract Approvals Item 1 Name detail
+          approved_at: "2024-01-01T00:00:00Z"
+          decision: approved
+      change_management:
+        requires_review: true
+        lead_time_days: 0
+        rollback_plan: Statefultoolcontract Change Management Rollback Plan detail
+  compiler_microservice_interfaces:
+    -
+      interface_id: Compilermicroserviceinterface Interface Id detail
+      service_name: Compilermicroserviceinterface Service Name detail
+      protocol: grpc
+      endpoints:
+        -
+          name: Compilermicroserviceinterface Endpoints Item 1 Name detail
+          method: GET
+          path: Compilermicroserviceinterface Endpoints Item 1 Path detail
+  automated_governance_policy_diff_reports:
+    -
+      report_id: Automatedgovernancepolicydiffreport Report Id detail
+      baseline_version: Automatedgovernancepolicydiffreport Baseline Version detail
+      candidate_version: Automatedgovernancepolicydiffreport Candidate Version detail
+      generated_at: "2024-01-01T00:00:00Z"
+      differences:
+        -
+          control_id: Automatedgovernancepolicydiffreport Differences Item 1 Control Id detail
+          change_type: added
+  audit_trail_signature_chains:
+    -
+      chain_id: Audittrailsignaturechain Chain Id detail
+      algorithm: Audittrailsignaturechain Algorithm detail
+      root_hash: Audittrailsignaturechain Root Hash detail
+      events:
+        -
+          event_id: Audittrailsignaturechain Events Item 1 Event Id detail
+          timestamp: "2024-01-01T00:00:00Z"
+          hash: Audittrailsignaturechain Events Item 1 Hash detail
+          signature: Audittrailsignaturechain Events Item 1 Signature detail
+  fallback_tool_selection_matrices:
+    -
+      matrix_id: Fallbacktoolselectionmatrix Matrix Id detail
+      use_case: Fallbacktoolselectionmatrix Use Case detail
+      fallbacks:
+        -
+          trigger_condition: Fallbacktoolselectionmatrix Fallbacks Item 1 Trigger Condition detail
+          primary_tool: Fallbacktoolselectionmatrix Fallbacks Item 1 Primary Tool detail
+          fallback_tool: Fallbacktoolselectionmatrix Fallbacks Item 1 Fallback Tool detail
+          readiness_level: experimental
+  adaptive_risk_trigger_calibrations:
+    -
+      workflow_id: Adaptiverisktriggercalibration Workflow Id detail
+      risk_domain: Adaptiverisktriggercalibration Risk Domain detail
+      telemetry_sources:
+        - Adaptiverisktriggercalibration Telemetry Sources Item 1 detail
+      calibration_steps:
+        -
+          sequence: 1
+          name: Adaptiverisktriggercalibration Calibration Steps Item 1 Name detail
+      approval_policy:
+        required_roles:
+          - Adaptiverisktriggercalibration Approval Policy Required Roles Item 1 detail
+        decision_sla_hours: 1
+      review_cadence_days: 1
+  external_stakeholder_communication_playbook:
+    stakeholder_groups:
+      - Stakeholdercommunicationplaybook Stakeholder Groups Item 1 detail
+    triggers:
+      - Stakeholdercommunicationplaybook Triggers Item 1 detail
+    channels:
+      - Stakeholdercommunicationplaybook Channels Item 1 detail
+    message_templates:
+      - Stakeholdercommunicationplaybook Message Templates Item 1 detail
+    legal_reviewed: true
+    response_sla_minutes: 0
+  multilingual_fairness_evaluation_manifest:
+    -
+      locale: Multilingualfairnessevaluationentry Locale detail
+      metrics:
+        - Multilingualfairnessevaluationentry Metrics Item 1 detail
+      thresholds:
+        -
+          metric: Fairnessmetricthreshold Metric detail
+          target: 1.0
+          tolerance: 0.0
+          unit: Fairnessmetricthreshold Unit detail
+      datasets:
+        - Multilingualfairnessevaluationentry Datasets Item 1 detail
+      owners:
+        - Multilingualfairnessevaluationentry Owners Item 1 detail
+      last_reviewed: "2024-01-01"
+  user_feedback_loop_integration:
+    channels:
+      - Userfeedbackloopintegration Channels Item 1 detail
+    cadence: Userfeedbackloopintegration Cadence detail
+    triage_owner: Userfeedbackloopintegration Triage Owner detail
+    signal_types:
+      - Userfeedbackloopintegration Signal Types Item 1 detail
+    action_tracking_system: Userfeedbackloopintegration Action Tracking System detail
+    feedback_to_control_mapping:
+      -
+        signal_type: Feedbackcontrolmapping Signal Type detail
+        control_reference: Feedbackcontrolmapping Control Reference detail
+        action_path: Feedbackcontrolmapping Action Path detail
+        priority: low
+  evaluator_calibration_session_records:
+    -
+      session_id: Evaluatorcalibrationsessionrecord Session Id detail
+      date: "2024-01-01"
+      participants:
+        - Evaluatorcalibrationsessionrecord Participants Item 1 detail
+      focus_areas:
+        - Evaluatorcalibrationsessionrecord Focus Areas Item 1 detail
+      outcomes: Evaluatorcalibrationsessionrecord Outcomes detail
+      follow_up_actions:
+        -
+          description: Followupaction Description detail
+          owner: Followupaction Owner detail
+          due_date: "2024-01-01"
+          status: planned
+      quality_delta: -1.0
+  compliance_evidence_export_api:
+    -
+      name: Complianceevidenceexportapi Name detail
+      endpoint: Complianceevidenceexportapi Endpoint detail
+      method: GET
+      export_formats:
+        - Complianceevidenceexportapi Export Formats Item 1 detail
+      authentication:
+        strategy: Complianceevidenceexportapi Authentication Strategy detail
+      audit_logging:
+        storage_location: Complianceevidenceexportapi Audit Logging Storage Location detail
+        retention_days: 0
+  release_rollback_simulation_metadata:
+    -
+      name: Releaserollbacksimulationmetadata Name detail
+      frequency: Releaserollbacksimulationmetadata Frequency detail
+      scenarios:
+        -
+          id: Rollbacksimulationscenariodescriptor Id detail
+          description: Rollbacksimulationscenariodescriptor Description detail
+          target_environment: Rollbacksimulationscenariodescriptor Target Environment detail
+          rollback_trigger: Rollbacksimulationscenariodescriptor Rollback Trigger detail
+          resilience_objectives:
+            - Rollbacksimulationscenariodescriptor Resilience Objectives Item 1 detail
+          validation_steps:
+            - Rollbacksimulationscenariodescriptor Validation Steps Item 1 detail
+      success_criteria:
+        - Releaserollbacksimulationmetadata Success Criteria Item 1 detail
+      owner: Releaserollbacksimulationmetadata Owner detail
+  dataset_license_conformance_map:
+    map_version: Datasetlicenseconformancemap Map Version detail
+    datasets:
+      -
+        dataset_id: Datasetlicenseconformancemap Datasets Item 1 Dataset Id detail
+        license_name: Datasetlicenseconformancemap Datasets Item 1 License Name detail
+        owner: Datasetlicenseconformancemap Datasets Item 1 Owner detail
+        permitted_uses:
+          - Datasetlicenseconformancemap Datasets Item 1 Permitted Uses Item 1 detail
+        compliance_controls:
+          - Datasetlicenseconformancemap Datasets Item 1 Compliance Controls Item 1 detail
+  behavior_drift_early_warning_signals:
+    -
+      signal_id: Behaviordriftearlywarningsignal Signal Id detail
+      dimension: Behaviordriftearlywarningsignal Dimension detail
+      metric: Behaviordriftearlywarningsignal Metric detail
+      threshold:
+        operator: ">"
+        value: 1.0
+      monitoring_channel: Behaviordriftearlywarningsignal Monitoring Channel detail
+      response_playbook: Behaviordriftearlywarningsignal Response Playbook detail
+  developer_onboarding_compliance_checklist:
+    -
+      checklist_id: Developeronboardingcompliancechecklist Checklist Id detail
+      version: Developeronboardingcompliancechecklist Version detail
+      owner: Developeronboardingcompliancechecklist Owner detail
+      sla_days: 0
+      signoff_roles:
+        - Developeronboardingcompliancechecklist Signoff Roles Item 1 detail
+      items:
+        -
+          id: Developeronboardingcompliancechecklist Items Item 1 Id detail
+          description: Developeronboardingcompliancechecklist Items Item 1 Description detail
+          mandatory: true
+          evidence_required: Developeronboardingcompliancechecklist Items Item 1 Evidence Required detail
+  decentralized_audit_trail_integrations:
+    -
+      integration_id: Decentralizedaudittrailintegration Integration Id detail
+      name: Decentralizedaudittrailintegration Name detail
+      governance_partner: Decentralizedaudittrailintegration Governance Partner detail
+      ledger_type: permissioned
+      consensus_mechanism: Decentralizedaudittrailintegration Consensus Mechanism detail
+      data_scope:
+        - Decentralizedaudittrailintegration Data Scope Item 1 detail
+      synchronization_frequency: Decentralizedaudittrailintegration Synchronization Frequency detail
+      access_controls:
+        -
+          role: Decentralizedaudittrailintegration Access Controls Item 1 Role detail
+          permissions:
+            - Decentralizedaudittrailintegration Access Controls Item 1 Permissions Item 1 detail
+          approval_required: true
+      evidence_retention_days: 0
+      jurisdictions:
+        - Decentralizedaudittrailintegration Jurisdictions Item 1 detail
+  continuous_learning_guardrails:
+    -
+      guardrail_id: Continuouslearningguardrail Guardrail Id detail
+      name: Continuouslearningguardrail Name detail
+      trigger_conditions:
+        -
+          signal: Continuouslearningguardrail Trigger Conditions Item 1 Signal detail
+          operator: gt
+          value: 1.0
+      approved_retraining_sources:
+        - Continuouslearningguardrail Approved Retraining Sources Item 1 detail
+      risk_threshold:
+        metric: Continuouslearningguardrail Risk Threshold Metric detail
+        threshold: 1.0
+      approval_workflow:
+        roles:
+          - Continuouslearningguardrail Approval Workflow Roles Item 1 detail
+        sla_hours: 0
+      rollback_strategy:
+        actions:
+          - Continuouslearningguardrail Rollback Strategy Actions Item 1 detail
+        owner: Continuouslearningguardrail Rollback Strategy Owner detail
+      monitoring_signals:
+        - Continuouslearningguardrail Monitoring Signals Item 1 detail
+      status: draft
+      owner: Continuouslearningguardrail Owner detail
+  auto_generated_prompt_diff_reports:
+    -
+      report_id: Autogeneratedpromptdiffreport Report Id detail
+      baseline_prompt_reference: Autogeneratedpromptdiffreport Baseline Prompt Reference detail
+      candidate_prompt_reference: Autogeneratedpromptdiffreport Candidate Prompt Reference detail
+      generated_at: "2024-01-01T00:00:00Z"
+      authoring_system: Autogeneratedpromptdiffreport Authoring System detail
+      diff_summary: Autogeneratedpromptdiffreport Diff Summary detail
+      risk_assessment:
+        severity: low
+        mitigation: Autogeneratedpromptdiffreport Risk Assessment Mitigation detail
+      review_status: pending
+  autonomous_tool_revocation_workflows:
+    -
+      workflow_id: Autonomoustoolrevocationworkflow Workflow Id detail
+      name: Autonomoustoolrevocationworkflow Name detail
+      trigger_sources:
+        - Autonomoustoolrevocationworkflow Trigger Sources Item 1 detail
+      decision_logic: Autonomoustoolrevocationworkflow Decision Logic detail
+      notification_channels:
+        - Autonomoustoolrevocationworkflow Notification Channels Item 1 detail
+      revocation_actions:
+        -
+          action: Autonomoustoolrevocationworkflow Revocation Actions Item 1 Action detail
+          sequence: 0
+          responsible_team: Autonomoustoolrevocationworkflow Revocation Actions Item 1 Responsible Team detail
+      cooldown_minutes: 0
+      owner: Autonomoustoolrevocationworkflow Owner detail
+      post_mortem_requirements:
+        template_reference: Autonomoustoolrevocationworkflow Post Mortem Requirements Template Reference detail
+        due_days: 0
+  cross_border_data_transfer_registry:
+    -
+      transfer_id: Crossborderdatatransferrecord Transfer Id detail
+      source_region: Crossborderdatatransferrecord Source Region detail
+      destination_region: Crossborderdatatransferrecord Destination Region detail
+      legal_basis: Crossborderdatatransferrecord Legal Basis detail
+      data_categories:
+        - Crossborderdatatransferrecord Data Categories Item 1 detail
+      transfer_mechanism: Crossborderdatatransferrecord Transfer Mechanism detail
+      encryption_protocol: Crossborderdatatransferrecord Encryption Protocol detail
+      retention_limit_days: 0
+      risk_rating:
+        level: low
+        rationale: Crossborderdatatransferrecord Risk Rating Rationale detail
+      last_reviewed_at: "2024-01-01T00:00:00Z"
+  ethical_review_board_decision_log:
+    -
+      board_case_id: Ethicalreviewboarddecisionlogentry Board Case Id detail
+      session_date: "2024-01-01T00:00:00Z"
+      chair:
+        name: Ethicalreviewboarddecisionlogentry Chair Name detail
+        role: Ethicalreviewboarddecisionlogentry Chair Role detail
+      members:
+        -
+          name: Ethicalreviewboarddecisionlogentry Members Item 1 Name detail
+          role: Ethicalreviewboarddecisionlogentry Members Item 1 Role detail
+          vote: approve
+      decision_outcome: approved
+      rationale: Ethicalreviewboarddecisionlogentry Rationale detail
+      minority_opinions:
+        -
+          author: Ethicalreviewboarddecisionlogentry Minority Opinions Item 1 Author detail
+          position: Ethicalreviewboarddecisionlogentry Minority Opinions Item 1 Position detail
+          statement: Ethicalreviewboarddecisionlogentry Minority Opinions Item 1 Statement detail
+      conditions:
+        - Ethicalreviewboarddecisionlogentry Conditions Item 1 detail
+      follow_up_actions:
+        -
+          description: Ethicalreviewboarddecisionlogentry Follow Up Actions Item 1 Description detail
+          owner: Ethicalreviewboarddecisionlogentry Follow Up Actions Item 1 Owner detail
+          due_date: "2024-01-01"
+          status: pending
+      transparency_commitments:
+        - Ethicalreviewboarddecisionlogentry Transparency Commitments Item 1 detail
+  adaptive_prompt_throttling_policies:
+    -
+      policy_id: Adaptivepromptthrottlingpolicy Policy Id detail
+      risk_level: low
+      max_prompts_per_minute: 1
+      monitoring_signals:
+        - Adaptivepromptthrottlingpolicy Monitoring Signals Item 1 detail
+      activation_conditions:
+        - Adaptivepromptthrottlingpolicy Activation Conditions Item 1 detail
+      review_cadence_days: 1
+  provenance_integrity_verification_workflows:
+    -
+      workflow_id: Provenanceintegrityverificationworkflow Workflow Id detail
+      scope: Provenanceintegrityverificationworkflow Scope detail
+      signature_scheme: Provenanceintegrityverificationworkflow Signature Scheme detail
+      participants:
+        -
+          role: Provenanceintegrityverificationworkflow Participants Item 1 Role detail
+          responsibilities: Provenanceintegrityverificationworkflow Participants Item 1 Responsibilities detail
+          verification_step: Provenanceintegrityverificationworkflow Participants Item 1 Verification Step detail
+      verification_schedule: Provenanceintegrityverificationworkflow Verification Schedule detail
+      evidence_retention_days: 0
+  continuous_governance_kpi_dashboards:
+    -
+      dashboard_id: Continuousgovernancekpidashboard Dashboard Id detail
+      metrics:
+        -
+          name: Continuousgovernancekpidashboard Metrics Item 1 Name detail
+          definition: Continuousgovernancekpidashboard Metrics Item 1 Definition detail
+          target_value: 1.0
+          threshold_value: 1.0
+          data_source: Continuousgovernancekpidashboard Metrics Item 1 Data Source detail
+      refresh_interval_minutes: 1
+      owner: Continuousgovernancekpidashboard Owner detail
+      consumers:
+        - Continuousgovernancekpidashboard Consumers Item 1 detail
+  automated_tool_safety_certification_checklists:
+    -
+      checklist_id: Automatedtoolsafetycertificationchecklist Checklist Id detail
+      tool_category: Automatedtoolsafetycertificationchecklist Tool Category detail
+      gating_criteria:
+        - Automatedtoolsafetycertificationchecklist Gating Criteria Item 1 detail
+      automated_controls:
+        -
+          control_id: Automatedtoolsafetycertificationchecklist Automated Controls Item 1 Control Id detail
+          description: Automatedtoolsafetycertificationchecklist Automated Controls Item 1 Description detail
+          validation_script: Automatedtoolsafetycertificationchecklist Automated Controls Item 1 Validation Script detail
+          status: pending
+      approver_roles:
+        - Automatedtoolsafetycertificationchecklist Approver Roles Item 1 detail
+      expiration_days: 1
+  privacy_risk_heatmaps:
+    -
+      heatmap_id: Privacyriskheatmap Heatmap Id detail
+      axes:
+        likelihood_axis: Privacyriskheatmap Axes Likelihood Axis detail
+        impact_axis: Privacyriskheatmap Axes Impact Axis detail
+      risk_cells:
+        -
+          cell: Privacyriskheatmap Risk Cells Item 1 Cell detail
+          likelihood: Privacyriskheatmap Risk Cells Item 1 Likelihood detail
+          impact: Privacyriskheatmap Risk Cells Item 1 Impact detail
+          current_risk: Privacyriskheatmap Risk Cells Item 1 Current Risk detail
+          target_risk: Privacyriskheatmap Risk Cells Item 1 Target Risk detail
+      last_updated: "2024-01-01T00:00:00Z"
+  privacy_preserving_logging_profiles:
+    -
+      name: Privacypreservingloggingprofile Name detail
+      applies_to:
+        - Privacypreservingloggingprofile Applies To Item 1 detail
+      redaction_depth: field_level
+      retention_days: 0
+      masking_techniques:
+        - Privacypreservingloggingprofile Masking Techniques Item 1 detail
+      review_cadence_days: 1
+      approved_by:
+        - Privacypreservingloggingprofile Approved By Item 1 detail
+  llm_alignment_incident_postmortems:
+    -
+      incident_id: Llmalignmentincidentpostmortem Incident Id detail
+      title: Llmalignmentincidentpostmortem Title detail
+      severity: low
+      detected_on: "2024-01-01T00:00:00Z"
+      published_on: "2024-01-01T00:00:00Z"
+      root_causes:
+        - Llmalignmentincidentpostmortem Root Causes Item 1 detail
+      mitigations:
+        -
+          description: Llmalignmentincidentpostmortem Mitigations Item 1 Description detail
+          owner: Llmalignmentincidentpostmortem Mitigations Item 1 Owner detail
+          status: planned
+      status: draft
+  llm_audit_log_signing_policies:
+    -
+      policy_id: Llmauditlogsigningpolicy Policy Id detail
+      scope: Llmauditlogsigningpolicy Scope detail
+      signing_algorithm: Llmauditlogsigningpolicy Signing Algorithm detail
+      key_management:
+        key_id: Llmauditlogsigningpolicy Key Management Key Id detail
+        rotation_days: 1
+        storage_location: Llmauditlogsigningpolicy Key Management Storage Location detail
+      verification_workflow:
+        -
+          sequence: 1
+          name: Llmauditlogsigningpolicy Verification Workflow Item 1 Name detail
+      evidence_retention_days: 1
+  mitigation_effectiveness_scorecards:
+    -
+      control_id: Mitigationeffectivenessscorecard Control Id detail
+      metric: Mitigationeffectivenessscorecard Metric detail
+      score: 0.0
+      assessment_method: simulation
+      assessed_at: "2024-01-01T00:00:00Z"
+      assessed_by: Mitigationeffectivenessscorecard Assessed By detail
+  llm_output_redaction_pipelines:
+    -
+      pipeline_id: Llmoutputredactionpipeline Pipeline Id detail
+      trigger_conditions:
+        - Llmoutputredactionpipeline Trigger Conditions Item 1 detail
+      templates:
+        -
+          template_id: Redactiontemplate Template Id detail
+          sensitive_categories:
+            - Redactiontemplate Sensitive Categories Item 1 detail
+          masking_strategy: mask
+          transformation_rules:
+            - Redactiontemplate Transformation Rules Item 1 detail
+      audit_log_required: true
+      owner: Llmoutputredactionpipeline Owner detail
+  llm_output_data_quality_contracts:
+    -
+      channel: Llmoutputdataqualitycontract Channel detail
+      accuracy_threshold: 0.0
+      completeness_threshold: 0.0
+      timeliness_sla_seconds: 0
+      validation_methods:
+        - Llmoutputdataqualitycontract Validation Methods Item 1 detail
+      monitoring_signals:
+        - Llmoutputdataqualitycontract Monitoring Signals Item 1 detail
+      owner: Llmoutputdataqualitycontract Owner detail
+  automated_spec_diff_changelogs:
+    -
+      changelog_id: Automatedspecdiffchangelog Changelog Id detail
+      baseline_spec_version: Automatedspecdiffchangelog Baseline Spec Version detail
+      candidate_spec_version: Automatedspecdiffchangelog Candidate Spec Version detail
+      generated_at: "2024-01-01T00:00:00Z"
+      changes:
+        -
+          section_path: Specchangeentry Section Path detail
+          change_type: added
+          rationale: Specchangeentry Rationale detail
+  governance_training_completion_ledgers:
+    -
+      ledger_id: Governancetrainingcompletionledger Ledger Id detail
+      reporting_period: Governancetrainingcompletionledger Reporting Period detail
+      owner: Governancetrainingcompletionledger Owner detail
+      entries:
+        -
+          operator_id: Trainingcompletionrecord Operator Id detail
+          role: Trainingcompletionrecord Role detail
+          status: in_progress
+          modules:
+            -
+              module_id: Trainingmodulerecord Module Id detail
+              completed_at: "2024-01-01T00:00:00Z"
+  regulatory_mapping_matrices:
+    -
+      matrix_id: Regulatorymappingmatrix Matrix Id detail
+      framework: Regulatorymappingmatrix Framework detail
+      version: Regulatorymappingmatrix Version detail
+      mappings:
+        -
+          external_control_id: Regulatorymappingentry External Control Id detail
+          spec_control_ids:
+            - Regulatorymappingentry Spec Control Ids Item 1 detail
+          status: aligned
+      owner: Regulatorymappingmatrix Owner detail
+  llm_guardrail_hypothesis_tracking_records:
+    -
+      experiment_id: Llmguardrailhypothesistrackingrecord Experiment Id detail
+      guardrail_name: Llmguardrailhypothesistrackingrecord Guardrail Name detail
+      hypothesis_statement: Llmguardrailhypothesistrackingrecord Hypothesis Statement detail
+      experiment_protocol: Llmguardrailhypothesistrackingrecord Experiment Protocol detail
+      metric_results:
+        -
+          name: Llmguardrailhypothesistrackingrecord Metric Results Item 1 Name detail
+          observed: 1.0
+      start_time: "2024-01-01T00:00:00Z"
+      end_time: "2024-01-01T00:00:00Z"
+      outcome: accepted
+      decision: Llmguardrailhypothesistrackingrecord Decision detail
+  incident_response_simulation_reports:
+    -
+      simulation_id: Incidentresponsesimulationreport Simulation Id detail
+      scenario_name: Incidentresponsesimulationreport Scenario Name detail
+      execution_date: "2024-01-01T00:00:00Z"
+      participants:
+        -
+          name: Incidentresponsesimulationreport Participants Item 1 Name detail
+          role: Incidentresponsesimulationreport Participants Item 1 Role detail
+      objectives:
+        - Incidentresponsesimulationreport Objectives Item 1 detail
+      findings:
+        -
+          severity: low
+          description: Incidentresponsesimulationreport Findings Item 1 Description detail
+          owner_role: Incidentresponsesimulationreport Findings Item 1 Owner Role detail
+      readiness_score: 0.0
+      follow_up_actions:
+        -
+          action: Incidentresponsesimulationreport Follow Up Actions Item 1 Action detail
+          owner_role: Incidentresponsesimulationreport Follow Up Actions Item 1 Owner Role detail
+  runtime_feature_flag_governance_profiles:
+    -
+      flag_name: Runtimefeatureflaggovernanceprofile Flag Name detail
+      environments:
+        - Runtimefeatureflaggovernanceprofile Environments Item 1 detail
+      default_state: enabled
+      change_authority:
+        - Runtimefeatureflaggovernanceprofile Change Authority Item 1 detail
+      approval_workflow:
+        required_roles:
+          - Runtimefeatureflaggovernanceprofile Approval Workflow Required Roles Item 1 detail
+        decision_sla_hours: 1
+      rollback_strategy: Runtimefeatureflaggovernanceprofile Rollback Strategy detail
+      metrics:
+        -
+          name: Runtimefeatureflaggovernanceprofile Metrics Item 1 Name detail
+      guardrail_dependencies:
+        - Runtimefeatureflaggovernanceprofile Guardrail Dependencies Item 1 detail
+  runtime_guardrail_versioning_manifest:
+    current_version: v1.0.0
+    supported_versions:
+      - v1.0.0
+    rollback_procedures:
+      - Guardrailversioningmanifest Rollback Procedures Item 1 detail
+    rollforward_procedures:
+      - Guardrailversioningmanifest Rollforward Procedures Item 1 detail
+    verification_checks:
+      - Guardrailversioningmanifest Verification Checks Item 1 detail
+    change_window_policy:
+      maintenance_windows:
+        - Guardrailversioningmanifest Change Window Policy Maintenance Windows Item 1 detail
+      approver_roles:
+        - Guardrailversioningmanifest Change Window Policy Approver Roles Item 1 detail
+      notification_channels:
+        - Guardrailversioningmanifest Change Window Policy Notification Channels Item 1 detail
+  continuous_access_review_workflows:
+    -
+      workflow_id: Continuousaccessreviewworkflow Workflow Id detail
+      scope: Continuousaccessreviewworkflow Scope detail
+      credential_classes:
+        - Continuousaccessreviewworkflow Credential Classes Item 1 detail
+      cadence_days: 1
+      responsible_roles:
+        - Continuousaccessreviewworkflow Responsible Roles Item 1 detail
+      review_steps:
+        -
+          sequence: 1
+          name: Continuousaccessreviewworkflow Review Steps Item 1 Name detail
+      automation_level: manual
+      metrics:
+        -
+          name: Continuousaccessreviewworkflow Metrics Item 1 Name detail
+  continuous_data_quality_backtesting_profiles:
+    -
+      name: Continuousdataqualitybacktestingprofile Name detail
+      metric: Continuousdataqualitybacktestingprofile Metric detail
+      baseline_window: Continuousdataqualitybacktestingprofile Baseline Window detail
+      comparison_window: Continuousdataqualitybacktestingprofile Comparison Window detail
+      statistical_test: ks_test
+      thresholds:
+        -
+          name: Continuousdataqualitybacktestingprofile Thresholds Item 1 Name detail
+          direction: increase
+      alerting_policy:
+        severity_mapping:
+          -
+            severity: low
+            condition: Continuousdataqualitybacktestingprofile Alerting Policy Severity Mapping Item 1 Condition detail
+        notification_channels:
+          - Continuousdataqualitybacktestingprofile Alerting Policy Notification Channels Item 1 detail
+      owner: Continuousdataqualitybacktestingprofile Owner detail
+  continuous_resilience_testing_schedules:
+    -
+      schedule_id: Continuousresiliencetestingschedule Schedule Id detail
+      objective: Continuousresiliencetestingschedule Objective detail
+      chaos_experiment_types:
+        - Continuousresiliencetestingschedule Chaos Experiment Types Item 1 detail
+      frequency: Continuousresiliencetestingschedule Frequency detail
+      owner_roles:
+        - Continuousresiliencetestingschedule Owner Roles Item 1 detail
+      environments:
+        - Continuousresiliencetestingschedule Environments Item 1 detail
+      success_criteria:
+        - Continuousresiliencetestingschedule Success Criteria Item 1 detail
+  zero_knowledge_guardrail_attestations:
+    -
+      attestation_id: Zeroknowledgeguardrailattestation Attestation Id detail
+      guardrail_ids:
+        - Zeroknowledgeguardrailattestation Guardrail Ids Item 1 detail
+      generated_at: "2024-01-01T00:00:00Z"
+      generated_by: Zeroknowledgeguardrailattestation Generated By detail
+      scheme: zk_snark
+      proof_artifact_uri: Zeroknowledgeguardrailattestation Proof Artifact Uri detail
+      verification_materials:
+        - Zeroknowledgeguardrailattestation Verification Materials Item 1 detail
+      status: valid
+  real_time_safety_observer_channels:
+    -
+      channel_name: Realtimesafetyobserverchannel Channel Name detail
+      source_phase: Realtimesafetyobserverchannel Source Phase detail
+      monitored_signals:
+        - Realtimesafetyobserverchannel Monitored Signals Item 1 detail
+      sampling:
+        strategy: fixed
+      alert_thresholds:
+        -
+          signal: Realtimesafetyobserverchannel Alert Thresholds Item 1 Signal detail
+          condition: Realtimesafetyobserverchannel Alert Thresholds Item 1 Condition detail
+          severity: info
+      reviewer_roles:
+        - Realtimesafetyobserverchannel Reviewer Roles Item 1 detail
+      stream_endpoint: Realtimesafetyobserverchannel Stream Endpoint detail
+      status: active
+  real_time_explanation_traces:
+    -
+      trace_id: Realtimeexplanationtrace Trace Id detail
+      phase: Realtimeexplanationtrace Phase detail
+      signals:
+        -
+          name: Realtimeexplanationtrace Signals Item 1 Name detail
+          source: Realtimeexplanationtrace Signals Item 1 Source detail
+      latency_budget_ms: 0
+      retention_policy_days: 0
+  dependency_license_audit_manifests:
+    -
+      manifest_id: Dependencylicenseauditmanifest Manifest Id detail
+      generated_at: "2024-01-01T00:00:00Z"
+      sbom_reference: Dependencylicenseauditmanifest Sbom Reference detail
+      dependencies:
+        -
+          name: Dependencylicenseauditmanifest Dependencies Item 1 Name detail
+          version: Dependencylicenseauditmanifest Dependencies Item 1 Version detail
+          license: Dependencylicenseauditmanifest Dependencies Item 1 License detail
+          compliance_status: compliant
+      owner: Dependencylicenseauditmanifest Owner detail
+  llm_consent_receipts:
+    -
+      receipt_id: Llmconsentreceipt Receipt Id detail
+      subject_identifier: Llmconsentreceipt Subject Identifier detail
+      legal_basis: consent
+      granted_at: "2024-01-01T00:00:00Z"
+      data_categories:
+        - Llmconsentreceipt Data Categories Item 1 detail
+      processing_purposes:
+        - Llmconsentreceipt Processing Purposes Item 1 detail
+      consent_status: active
+      owner: Llmconsentreceipt Owner detail
+  scenario_outcome_confidence_profiles:
+    -
+      scenario_id: Scenariooutcomeconfidenceprofile Scenario Id detail
+      scenario_name: Scenariooutcomeconfidenceprofile Scenario Name detail
+      evaluation_run_id: Scenariooutcomeconfidenceprofile Evaluation Run Id detail
+      metric: Scenariooutcomeconfidenceprofile Metric detail
+      confidence_interval:
+        lower_bound: 1.0
+        upper_bound: 1.0
+        confidence_level: 0.0
+      method: bootstrap
+      status: meets_target
+  automated_compliance_mapping_diffs:
+    -
+      name: Automatedcompliancemappingdiff Name detail
+      framework: Automatedcompliancemappingdiff Framework detail
+      source_version: v1.0.0
+      target_version: v1.0.0
+      generated_at: "2024-01-01T00:00:00Z"
+      control_changes:
+        -
+          control_id: Automatedcompliancemappingdiff Control Changes Item 1 Control Id detail
+          previous_status: met
+          current_status: met
+  llm_tool_latency_budgets:
+    -
+      phase: Llmtoollatencybudget Phase detail
+      max_latency_ms: 0
+      breach_actions:
+        - Llmtoollatencybudget Breach Actions Item 1 detail
+      monitoring_probes:
+        -
+          name: Llmtoollatencybudget Monitoring Probes Item 1 Name detail
+          metric: Llmtoollatencybudget Monitoring Probes Item 1 Metric detail
+          sampling_interval_seconds: 1
+  incident_postmortem_templates:
+    -
+      name: Incidentpostmortemtemplate Name detail
+      severity_levels:
+        - Incidentpostmortemtemplate Severity Levels Item 1 detail
+      required_sections:
+        - Incidentpostmortemtemplate Required Sections Item 1 detail
+      approval_roles:
+        - Incidentpostmortemtemplate Approval Roles Item 1 detail
+  safety_test_evidence_manifests:
+    -
+      name: Safetytestevidencemanifest Name detail
+      test_suite: Safetytestevidencemanifest Test Suite detail
+      generated_at: "2024-01-01T00:00:00Z"
+      evidence_uri: Safetytestevidencemanifest Evidence Uri detail
+      signatories:
+        - Safetytestevidencemanifest Signatories Item 1 detail
+      verification_status: pending
+      acceptance_criteria:
+        - Safetytestevidencemanifest Acceptance Criteria Item 1 detail
+  adversarial_training_dataset_descriptors:
+    -
+      name: Adversarialtrainingdatasetdescriptor Name detail
+      threat_focus:
+        - Adversarialtrainingdatasetdescriptor Threat Focus Item 1 detail
+      collection_method: Adversarialtrainingdatasetdescriptor Collection Method detail
+      refresh_cadence_days: 1
+      validation_checks:
+        - Adversarialtrainingdatasetdescriptor Validation Checks Item 1 detail
+      governance_owner: Adversarialtrainingdatasetdescriptor Governance Owner detail
+  human_override_authorization_workflows:
+    -
+      name: Humanoverrideauthorizationworkflow Name detail
+      risk_tiers:
+        - Humanoverrideauthorizationworkflow Risk Tiers Item 1 detail
+      approval_chain:
+        - Humanoverrideauthorizationworkflow Approval Chain Item 1 detail
+      revocation_conditions:
+        - Humanoverrideauthorizationworkflow Revocation Conditions Item 1 detail
+      audit_logging_required: true
+      sla_minutes: 0
+  phase_dependency_change_alerts:
+    -
+      id: Phasedependencychangealert Id detail
+      source_phase: Phasedependencychangealert Source Phase detail
+      impacted_elements:
+        - Phasedependencychangealert Impacted Elements Item 1 detail
+      notification_channels:
+        - Phasedependencychangealert Notification Channels Item 1 detail
+      trigger_condition: Phasedependencychangealert Trigger Condition detail
+      response_owner: Phasedependencychangealert Response Owner detail
+  automated_evidence_signing_workflows:
+    -
+      name: Automatedevidencesigningworkflow Name detail
+      signing_tool: Automatedevidencesigningworkflow Signing Tool detail
+      key_management:
+        key_reference: Automatedevidencesigningworkflow Key Management Key Reference detail
+        rotation_days: 1
+      artifact_scope:
+        - Automatedevidencesigningworkflow Artifact Scope Item 1 detail
+      signature_format: Automatedevidencesigningworkflow Signature Format detail
+      verification_steps:
+        - Automatedevidencesigningworkflow Verification Steps Item 1 detail
+      owner: Automatedevidencesigningworkflow Owner detail
+  llm_interface_contracts:
+    -
+      name: Llminterfacecontract Name detail
+      phase: Llminterfacecontract Phase detail
+      message_sequence:
+        -
+          order: 1
+          actor: phase
+          message_purpose: Llminterfacecontract Message Sequence Item 1 Message Purpose detail
+      timing_requirements:
+        max_duration_ms: 1
+        latency_budget_ms: 0
+      error_semantics:
+        failure_modes:
+          - Llminterfacecontract Error Semantics Failure Modes Item 1 detail
+        recovery_actions:
+          - Llminterfacecontract Error Semantics Recovery Actions Item 1 detail
+  human_feedback_annotation_schema:
+    schema_id: Humanfeedbackannotationschema Schema Id detail
+    version: Humanfeedbackannotationschema Version detail
+    fields:
+      -
+        name: Humanfeedbackannotationfield Name detail
+        data_type: string
+    linkage_keys:
+      - Humanfeedbackannotationschema Linkage Keys Item 1 detail
+  llm_compiler_interface_test_catalog:
+    -
+      test_id: Llmcompilerinterfacetestcase Test Id detail
+      target_interface: Llmcompilerinterfacetestcase Target Interface detail
+      expected_outputs:
+        - Llmcompilerinterfacetestcase Expected Outputs Item 1 detail
+      assertions:
+        - Llmcompilerinterfacetestcase Assertions Item 1 detail
+  llm_policy_change_audit_log:
+    -
+      change_id: Llmpolicychangeauditentry Change Id detail
+      policy_reference: Llmpolicychangeauditentry Policy Reference detail
+      submitted_by: Llmpolicychangeauditentry Submitted By detail
+      submitted_at: "2024-01-01T00:00:00Z"
+      status: draft
+  prompt_asset_version_catalog:
+    -
+      prompt_id: Promptassetversionrecord Prompt Id detail
+      version: Promptassetversionrecord Version detail
+      phase: Promptassetversionrecord Phase detail
+  security_incident_drill_schedule:
+    -
+      drill_id: Securityincidentdrillscheduleentry Drill Id detail
+      name: Securityincidentdrillscheduleentry Name detail
+      owners:
+        - Securityincidentdrillscheduleentry Owners Item 1 detail
+  guardrail_breach_mitigation_simulators:
+    -
+      simulator_id: Guardrailbreachmitigationsimulator Simulator Id detail
+      risk_focus:
+        - Guardrailbreachmitigationsimulator Risk Focus Item 1 detail
+      scenarios:
+        -
+          scenario_id: Mitigationsimulationscenario Scenario Id detail
+          guardrail_target: Mitigationsimulationscenario Guardrail Target detail
+          failure_mode: Mitigationsimulationscenario Failure Mode detail
+          injection_method: Mitigationsimulationscenario Injection Method detail
+          metrics:
+            - Mitigationsimulationscenario Metrics Item 1 detail
+      execution_schedule:
+        frequency: Guardrailbreachmitigationsimulator Execution Schedule Frequency detail
+        owner: Guardrailbreachmitigationsimulator Execution Schedule Owner detail
+      success_criteria:
+        - Guardrailbreachmitigationsimulator Success Criteria Item 1 detail
+      owner: Guardrailbreachmitigationsimulator Owner detail
+  continuous_verification_pipelines:
+    -
+      pipeline_id: Continuousverificationpipeline Pipeline Id detail
+      objective: Continuousverificationpipeline Objective detail
+      stages:
+        -
+          stage_id: Verificationstagespec Stage Id detail
+          stage_type: static
+          responsible_roles:
+            - Verificationstagespec Responsible Roles Item 1 detail
+      evidence_artifacts:
+        -
+          artifact_id: Verificationevidenceartifact Artifact Id detail
+          location: Verificationevidenceartifact Location detail
+          generated_by: Verificationevidenceartifact Generated By detail
+      trigger_modes:
+        - Continuousverificationpipeline Trigger Modes Item 1 detail
+      automation_level: manual
+      owner: Continuousverificationpipeline Owner detail
+      review_cadence_days: 1
+  plugin_capability_negotiation_protocols:
+    -
+      protocol_id: Plugincapabilitynegotiationprotocol Protocol Id detail
+      plugin_type: Plugincapabilitynegotiationprotocol Plugin Type detail
+      integration_stage: Plugincapabilitynegotiationprotocol Integration Stage detail
+      capability_requirements:
+        -
+          capability: Plugincapabilityrequirement Capability detail
+          mandatory: true
+      negotiation_steps:
+        -
+          step_order: 0
+          name: Negotiationstep Name detail
+          owner_role: Negotiationstep Owner Role detail
+  interactive_spec_diff_visualizations:
+    -
+      visualization_id: Interactivespecdiffvisualization Visualization Id detail
+      baseline_version: Interactivespecdiffvisualization Baseline Version detail
+      candidate_version: Interactivespecdiffvisualization Candidate Version detail
+      rendering_tool: Interactivespecdiffvisualization Rendering Tool detail
+      interaction_modes:
+        - Interactivespecdiffvisualization Interaction Modes Item 1 detail
